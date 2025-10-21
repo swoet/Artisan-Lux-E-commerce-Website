@@ -1,0 +1,52 @@
+@import url("../theme/tokens.css");
+@import "tailwindcss";
+
+:root {
+  /* Bridge old names to tokens */
+  --background: var(--color-bg);
+  --foreground: var(--color-fg);
+}
+
+@theme inline {
+  --color-background: var(--color-bg);
+  --color-foreground: var(--color-fg);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+}
+
+.container {
+  max-width: var(--container);
+  margin-inline: auto;
+}
+
+.card {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 2px 0 hsl(var(--shadow-color));
+}
+
+/* Mascot animation utilities */
+@keyframes blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  96% { transform: scaleY(0.1); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes wave {
+  0% { transform: rotate(0deg); }
+  50% { transform: rotate(12deg); }
+  100% { transform: rotate(0deg); }
+}
+.mascot { filter: drop-shadow(0 6px 12px hsl(var(--shadow-color)/0.25)); }
+.mascot-eye { transform-origin: center; animation: blink 4s infinite; }
+.mascot-float { animation: float 3.5s ease-in-out infinite; }
+.mascot-hand { transform-origin: 80% 20%; animation: wave 2.5s ease-in-out infinite; }
