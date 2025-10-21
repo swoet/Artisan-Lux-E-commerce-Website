@@ -12,6 +12,14 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "loremflickr.com" },
     ],
   },
+  webpack: (config) => {
+    // Ignore locked webhook directories
+    config.watchOptions = {
+      ...config.watchOptions,
+      ignored: ['**/node_modules', '**/src/app/api/webhooks/**'],
+    };
+    return config;
+  },
 };
 
 export default nextConfig;

@@ -47,8 +47,10 @@ export default function ProductActions({ productName, productSlug }: ProductActi
 
       const checkout = await fetch("/api/checkout", { method: "POST" });
       const data = await checkout.json();
-      if (!checkout.ok || !data.url) throw new Error(data.error || "Checkout failed");
-      window.location.href = data.url as string;
+      if (!checkout.ok || !data.orderId) throw new Error(data.error || "Checkout failed");
+      
+      // Redirect to payment instructions page
+      window.location.href = `/payment/${data.orderId}`;
     } catch (e) {
       setMessage(e instanceof Error ? e.message : "Something went wrong");
       setLoading("none");

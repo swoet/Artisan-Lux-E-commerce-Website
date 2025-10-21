@@ -139,6 +139,8 @@ export const orders = pgTable("orders", {
   total: numeric("total", { precision: 12, scale: 2 }).notNull(),
   currency: varchar("currency", { length: 3 }).notNull().default("USD"),
   status: varchar("status", { length: 20 }).$type<"pending" | "paid" | "failed">().notNull().default("pending"),
+  paymentProofUrl: text("payment_proof_url"),
+  paymentMethod: varchar("payment_method", { length: 50 }), // bank_transfer, ecocash, onemoney, innbucks
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

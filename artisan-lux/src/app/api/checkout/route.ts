@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import Stripe from "stripe";
-import { getCartWithItems, computeCartTotal, createOrderFromCart } from "@/db/queries/cart";
+import { getCartWithItems, createOrderFromCart } from "@/db/queries/cart";
 
 const CART_COOKIE = "cart_token";
 const CUSTOMER_COOKIE = "customer_session";
@@ -23,17 +22,13 @@ function parseCustomerEmail(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const siteOrigin = process.env.SITE_ORIGIN || "http://localhost:3000";
-  const stripeSecret = process.env.STRIPE_SECRET_KEY;
-  if (!stripeSecret) return NextResponse.json({ error: "STRIPE_SECRET_KEY not configured" }, { status: 500 });
-  const stripe = new Stripe(stripeSecret, { apiVersion: "2024-06-20" as Stripe.LatestApiVersion });
-
   let token: string;
   try {
     token = getCartToken(req);
   } catch {
     return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
   }
+  
   const { items } = await getCartWithItems(token);
   if (items.length === 0) return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
 
@@ -42,28 +37,15 @@ export async function POST(req: NextRequest) {
   const email = providedEmail || parseCustomerEmail(req);
   if (!email) return NextResponse.json({ error: "email required" }, { status: 400 });
 
-  const line_items = items.map((it) => ({
-    quantity: it.quantity,
-    price_data: {
-      currency: it.currency.toLowerCase(),
-      product_data: { name: (it.title || "Item") as string },
-      unit_amount: Math.round(parseFloat(it.unitPrice) * 100),
-    },
-  }));
+  // Create order reference
+  const orderRef = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-  const session = await stripe.checkout.sessions.create({
-    mode: "payment",
-    customer_email: email,
-    line_items,
-    success_url: `${siteOrigin}/?payment=success`,
-    cancel_url: `${siteOrigin}/?payment=cancelled`,
-    metadata: {
-      cart_token: token,
-    },
+  // Create pending order
+  const order = await createOrderFromCart(token, email, orderRef);
+
+  // Return order ID for payment instructions page
+  return NextResponse.json({ 
+    orderId: order.id,
+    orderRef 
   });
-
-  // Persist pending order linked to the Stripe session id
-  await createOrderFromCart(token, email, session.id);
-
-  return NextResponse.json({ url: session.url });
 }
