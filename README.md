@@ -23,7 +23,7 @@
 
 - 🎨 **Luxury Design System** — Elegant serif typography (Playfair Display) paired with clean sans-serif (Inter)
 - ⚡ **Instant Updates** — On-demand ISR via `revalidateTag` for real-time catalog changes
-- 🛍️ **Full Shopping Experience** — Cart, checkout, Stripe payments, and order management
+- 🛍️ **Full Shopping Experience** — Cart, checkout, manual payment processing, and order management
 - 📊 **Real-time Analytics** — Geographic visitor tracking with interactive maps
 - 🔐 **Secure Admin Portal** — Complete CMS for catalog, users, and orders
 - 🌐 **WebSocket Notifications** — Live order alerts for admin dashboard
@@ -35,7 +35,7 @@
 ### 🎭 **User Experience**
 - **Immersive Product Browsing** — Category-based navigation with filterable product grids
 - **Rich Product Pages** — High-resolution galleries, material details, and pricing
-- **Shopping Cart & Checkout** — Seamless cart management with Stripe integration
+- **Shopping Cart & Checkout** — Seamless cart management with manual payment verification
 - **User Authentication** — Secure sign-up and sign-in with session management
 - **Responsive Design** — Optimized for mobile, tablet, and desktop
 
@@ -50,7 +50,7 @@
 ### 🚀 **Technical Excellence**
 - **On-Demand ISR** — Next.js 15 with strategic cache invalidation
 - **Type-Safe Database** — Drizzle ORM with PostgreSQL
-- **Payment Processing** — Stripe Checkout with webhook handling
+- **Payment Processing** — Manual payment verification with proof of payment uploads
 - **Real-time Events** — Socket.io for live admin notifications
 - **Security** — Bcrypt password hashing, session tokens, CSRF protection
 - **Performance** — Core Web Vitals optimization targets (LCP ≤2.5s, CLS ≤0.1)
@@ -79,7 +79,7 @@ graph TB
     end
     
     subgraph "External Services"
-        STRIPE[💳 Stripe<br/>Payments]
+        PAYMENT[💳 Manual Payments<br/>Bank Transfer/EcoCash]
         SOCKET[⚡ Socket.io<br/>Real-time]
     end
     
@@ -87,7 +87,7 @@ graph TB
     ADMIN -->|Manage| ADMIN_APP
     
     SITE -->|Queries| DB
-    SITE -->|Checkout| STRIPE
+    SITE -->|Payment Instructions| PAYMENT
     SITE -->|Subscribe| SOCKET
     SITE -->|Images| MEDIA
     
@@ -95,7 +95,7 @@ graph TB
     ADMIN_APP -->|Upload| MEDIA
     ADMIN_APP -->|Emit Events| SOCKET
     
-    STRIPE -->|Webhooks| SITE
+    PAYMENT -->|Proof Upload| SITE
     ADMIN_APP -.->|Revalidate| SITE
     
     style USER fill:#e1f5ff
@@ -103,7 +103,7 @@ graph TB
     style SITE fill:#d4f1f4
     style ADMIN_APP fill:#f4d4e1
     style DB fill:#d4e1f4
-    style STRIPE fill:#96f0c7
+    style PAYMENT fill:#96f0c7
     style SOCKET fill:#ffd96a
 ```
 
@@ -116,7 +116,7 @@ sequenceDiagram
     participant DB
     participant Site
     participant Customer
-    participant Stripe
+    participant PaymentSystem
     
     Admin->>AdminApp: Create/Update Product
     AdminApp->>DB: Insert/Update Record
@@ -131,11 +131,11 @@ sequenceDiagram
     Customer->>Site: Add to Cart
     Site->>DB: Update Cart
     Customer->>Site: Checkout
-    Site->>Stripe: Create Session
-    Stripe-->>Customer: Redirect to Payment
+    Site->>PaymentSystem: Generate Payment Instructions
+    PaymentSystem-->>Customer: Bank/EcoCash Details
     
-    Customer->>Stripe: Complete Payment
-    Stripe->>Site: Webhook Event
+    Customer->>PaymentSystem: Upload Payment Proof
+    PaymentSystem->>Site: Notify Admin
     Site->>DB: Update Order Status
     Site->>AdminApp: Emit Socket Event
     AdminApp-->>Admin: 🔔 New Order Alert
@@ -289,7 +289,7 @@ erDiagram
 - **Database:** PostgreSQL (Vercel Postgres)
 - **ORM:** Drizzle ORM
 - **Auth:** bcryptjs + Session Tokens
-- **Payments:** Stripe API
+- **Payments:** Manual Verification System
 - **Real-time:** Socket.io Server
 
 </td>
@@ -303,7 +303,6 @@ erDiagram
   "next": "15.5.6",
   "react": "19.2.0",
   "drizzle-orm": "^0.44.6",
-  "stripe": "^16.12.0",
   "socket.io": "^4.8.1",
   "zod": "^4.1.12"
 }
@@ -343,8 +342,8 @@ D:\Phethan Marketing/
 │   │   │   │   └── signup/
 │   │   │   ├── api/
 │   │   │   │   ├── cart/              # Cart operations
-│   │   │   │   ├── checkout/          # Stripe checkout
-│   │   │   │   ├── webhooks/stripe/   # Payment webhooks
+│   │   │   │   ├── checkout/          # Manual checkout process
+│   │   │   │   ├── upload-payment-proof/ # Payment proof uploads
 │   │   │   │   ├── catalog-proxy/     # Category/product proxies
 │   │   │   │   └── revalidate/        # ISR invalidation
 │   │   │   └── layout.tsx
@@ -382,7 +381,7 @@ D:\Phethan Marketing/
 │   │   │       │   └── users/
 │   │   │       ├── catalog/           # Catalog CRUD
 │   │   │       ├── analytics/         # Analytics data
-│   │   │       └── payments/checkout/ # Order creation
+│   │   │       └── payments/checkout/ # Manual order creation
 │   │   ├── components/
 │   │   │   ├── AdminsManager.tsx
 │   │   │   ├── AnalyticsClient.tsx
@@ -393,7 +392,7 @@ D:\Phethan Marketing/
 │   │   │   └── queries/
 │   │   └── lib/
 │   │       ├── cloudinary.ts          # Media upload
-│   │       ├── stripe.ts              # Payment utils
+│   │       ├── payment-utils.ts       # Payment verification utils
 │   │       └── revalidate.ts          # ISR trigger
 │   └── package.json
 │
@@ -409,7 +408,7 @@ D:\Phethan Marketing/
 ```bash
 Node.js ≥ 20.x
 PostgreSQL database (Vercel Postgres recommended)
-Stripe account
+Bank account and/or Mobile Money (EcoCash/OneMoney)
 Cloudinary account
 ```
 
@@ -439,8 +438,13 @@ Create `.env.local` in both directories:
 **artisan-lux/.env.local:**
 ```bash
 DATABASE_URL=postgres://...
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
+# Payment Details
+BANK_NAME=Your Bank Name
+BANK_ACCOUNT_NAME=Your Full Name
+BANK_ACCOUNT_NUMBER=1234567890
+BANK_BRANCH=Branch Name
+ECOCASH_NUMBER=+263771234567
+ECOCASH_NAME=Your Registered Name
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
@@ -450,7 +454,11 @@ DATABASE_URL=postgres://...
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=...
 CLOUDINARY_API_SECRET=...
-STRIPE_SECRET_KEY=sk_test_...
+# Payment Details
+BANK_NAME=Your Bank Name
+BANK_ACCOUNT_NAME=Your Full Name
+BANK_ACCOUNT_NUMBER=1234567890
+ECOCASH_NUMBER=+263771234567
 NEXT_PUBLIC_ADMIN_URL=http://localhost:3001
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
@@ -505,9 +513,10 @@ graph LR
     B --> C[🔍 View Product]
     C --> D[🛒 Add to Cart]
     D --> E[💳 Checkout]
-    E --> F[💸 Stripe Payment]
-    F --> G[✅ Order Confirmed]
-    G --> H[📧 Email Receipt]
+    E --> F[🏦 Payment Instructions]
+    F --> G[📸 Upload Payment Proof]
+    G --> H[✅ Order Confirmed]
+    H --> I[📧 Email Receipt]
     
     style A fill:#e1f5ff
     style G fill:#93c47d
@@ -553,9 +562,10 @@ graph LR
    └── Environment variable secrets
 
 💳 Payment Security
-   ├── Stripe PCI compliance
-   ├── Webhook signature verification
-   └── No card data stored locally
+   ├── Manual payment verification
+   ├── Payment proof image validation
+   ├── Secure file upload handling
+   └── No sensitive payment data stored
 ```
 
 ---
@@ -610,7 +620,7 @@ npm run db:generate
 - [x] Dual frontend architecture
 - [x] Admin CMS with instant revalidation
 - [x] Shopping cart & checkout
-- [x] Stripe payment integration
+- [x] Manual payment system with proof uploads
 - [x] Real-time order notifications
 - [x] Geographic analytics
 
@@ -680,7 +690,7 @@ Built with ❤️ by the Artisan Lux team
 
 **Key Technologies:**
 - Next.js 15 • TypeScript • PostgreSQL • Drizzle ORM
-- Stripe • Cloudinary • Socket.io • Tailwind CSS
+- Manual Payments • Cloudinary • Socket.io • Tailwind CSS
 
 ---
 
