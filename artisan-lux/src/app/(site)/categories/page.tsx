@@ -5,6 +5,9 @@ import { eq, asc } from "drizzle-orm";
 import CategoryGrid from "@/components/site/CategoryGrid";
 import LiveCatalogRefresh from "@/components/site/LiveCatalogRefresh.server";
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: "Categories - Artisan Lux",
   description: "Explore our curated categories of luxury artisan goods",
