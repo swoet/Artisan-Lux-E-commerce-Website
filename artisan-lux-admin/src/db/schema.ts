@@ -189,3 +189,36 @@ export const payments = pgTable("payments", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
+
+// Products table (for inventory management)
+export const products = pgTable("products", {
+  id: serial("id").primaryKey(),
+  title: varchar("title", { length: 200 }).notNull(),
+  slug: varchar("slug", { length: 200 }).notNull(),
+  priceDecimal: numeric("price_decimal", { precision: 12, scale: 2 }).notNull(),
+  currency: varchar("currency", { length: 3 }).notNull().default("USD"),
+  categoryId: integer("category_id").references(() => categories.id),
+  status: varchar("status", { length: 12 }).$type<"draft" | "published">().notNull().default("draft"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Inventory Management
+export const inventory = pgTable("inventory", {
+  id: serial("id").primaryKey(),
+  productId: integer("product_id").references(() => products.id).notNull(),
+  quantityInStock: integer("quantity_in_stock").notNull().default(0),
+  lowStockThreshold: integer("low_stock_threshold").notNull().default(5),
+  lastRestockedAt: timestamp("last_restocked_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const inventoryHistory = pgTable("inventory_history", {
+  id: serial("id").primaryKey(),
+  productId: integer("product_id").references(() => products.id).notNull(),
+  quantityChange: integer("quantity_change").notNull(),
+  reason: varchar("reason", { length: 50 }).notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
