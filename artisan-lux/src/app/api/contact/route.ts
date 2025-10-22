@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialization - only create when needed
+function getResendClient() {
+  return new Resend(process.env.RESEND_API_KEY || "");
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,6 +20,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Send email using Resend
+    const resend = getResendClient();
     await resend.emails.send({
       from: "Artisan Lux Contact <onboarding@resend.dev>", // Use verified domain in production
       to: "shawnmutogo5@gmail.com", // Your email
