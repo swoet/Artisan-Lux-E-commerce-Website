@@ -1,6 +1,9 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialization - only create when needed
+function getResendClient() {
+  return new Resend(process.env.RESEND_API_KEY || "");
+}
 
 export type EmailTemplate = "order-confirmation" | "abandoned-cart" | "newsletter";
 
@@ -89,6 +92,7 @@ export async function sendOrderConfirmationEmail(data: OrderConfirmationData) {
       </html>
     `;
 
+    const resend = getResendClient();
     const result = await resend.emails.send({
       from: "Artisan Lux <orders@artisanlux.com>",
       to: data.customerEmail,
@@ -157,6 +161,7 @@ export async function sendAbandonedCartEmail(data: AbandonedCartData) {
       </html>
     `;
 
+    const resend = getResendClient();
     const result = await resend.emails.send({
       from: "Artisan Lux <hello@artisanlux.com>",
       to: data.customerEmail,
@@ -174,6 +179,7 @@ export async function sendAbandonedCartEmail(data: AbandonedCartData) {
 // Newsletter Email
 export async function sendNewsletterEmail(data: NewsletterData) {
   try {
+    const resend = getResendClient();
     const result = await resend.emails.send({
       from: "Artisan Lux <newsletter@artisanlux.com>",
       to: data.recipientEmail,
