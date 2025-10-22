@@ -4,8 +4,8 @@ import { categories } from "@/db/schema";
 import { eq, asc } from "drizzle-orm";
 import CategoryGrid from "@/components/site/CategoryGrid";
 
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
+// Disable static optimization
+export const revalidate = 0;
 
 export const metadata = {
   title: "Categories - Artisan Lux",

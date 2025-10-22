@@ -13,14 +13,6 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // Experimental features for better compatibility
-  experimental: {
-    serverActions: {
-      bodySizeLimit: '2mb',
-    },
-  },
-  // Ensure proper build output
-  distDir: '.next',
 };
 
 module.exports = nextConfig;

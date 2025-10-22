@@ -3,9 +3,8 @@ import CategoryGrid from "@/components/site/CategoryGrid";
 import Testimonials from "@/components/site/Testimonials";
 import UserMenu from "@/components/site/UserMenu";
 
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
+// Disable static optimization
+export const revalidate = 0;
 
 export default function Home() {
   return (
