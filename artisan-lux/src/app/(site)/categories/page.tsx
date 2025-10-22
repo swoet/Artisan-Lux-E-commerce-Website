@@ -3,7 +3,6 @@ import { db } from "@/db";
 import { categories } from "@/db/schema";
 import { eq, asc } from "drizzle-orm";
 import CategoryGrid from "@/components/site/CategoryGrid";
-import LiveCatalogRefresh from "@/components/site/LiveCatalogRefresh.server";
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -37,8 +36,6 @@ export default async function CategoriesPage() {
       </nav>
 
       <main className="max-w-7xl mx-auto px-6 py-16">
-        {/* Live refresh when catalog changes */}
-        <LiveCatalogRefresh />
         <h1 className="text-5xl md:text-7xl font-serif mb-6">
           Our <span className="bg-gradient-to-r from-[#b87333] to-[#cd7f32] bg-clip-text text-transparent">Categories</span>
         </h1>

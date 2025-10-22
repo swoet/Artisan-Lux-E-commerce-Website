@@ -1,7 +1,6 @@
 import Link from "next/link";
 import CategoryGrid from "@/components/site/CategoryGrid";
 import Testimonials from "@/components/site/Testimonials";
-import LiveCatalogRefresh from "@/components/site/LiveCatalogRefresh.server";
 import UserMenu from "@/components/site/UserMenu";
 
 // Force dynamic rendering
@@ -22,8 +21,6 @@ export default function Home() {
 
       {/* Hero Section */}
       <main className="max-w-7xl mx-auto px-6 py-24">
-        {/* Live refresh when catalog changes */}
-        <LiveCatalogRefresh />
         <div className="text-center space-y-8">
           <h2 className="text-6xl md:text-8xl font-serif leading-tight">
             Shop
