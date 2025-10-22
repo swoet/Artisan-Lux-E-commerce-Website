@@ -27,15 +27,14 @@ export default function SignInPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email })
     });
-    if (res.ok) {
-      const data = await res.json();
-      if (data.requiresVerification) {
-        setMessage("Check your email for the verification code!");
-        setStep("code");
-      }
-    } else {
-      const data = await res.json().catch(()=>({}));
+    const data = await res.json().catch(()=>({}));
+    if (data?.error) {
       setMessage(data.error || "Failed to sign in");
+    } else if (data?.requiresVerification) {
+      setMessage("Check your email for the verification code!");
+      setStep("code");
+    } else {
+      setMessage("Unable to sign in right now. Please try again later.");
     }
     setLoading(false);
   }

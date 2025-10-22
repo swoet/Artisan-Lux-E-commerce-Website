@@ -28,15 +28,14 @@ export default function SignUpPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, name })
     });
-    if (res.ok) {
-      const data = await res.json();
-      if (data.requiresVerification) {
-        setMessage("Check your email for the verification code!");
-        setStep("code");
-      }
-    } else {
-      const data = await res.json().catch(()=>({}));
+    const data = await res.json().catch(()=>({}));
+    if (data?.error) {
       setMessage(data.error || "Failed to sign up");
+    } else if (data?.requiresVerification) {
+      setMessage("Check your email for the verification code!");
+      setStep("code");
+    } else {
+      setMessage("Unable to sign up right now. Please try again later.");
     }
     setLoading(false);
   }

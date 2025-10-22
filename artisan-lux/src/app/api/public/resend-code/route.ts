@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
   const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
   const type = typeof body.type === "string" ? body.type : "signin";
   
-  if (!email) return NextResponse.json({ error: "email required" }, { status: 400 });
+  if (!email) return NextResponse.json({ ok: false, error: "email required" }, { status: 200 });
 
   try {
     const upstream = await fetch(`${BASE}/api/public/resend-code`, {
@@ -16,9 +16,12 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({ email, type })
     });
     const data = await upstream.json().catch(() => ({}));
-    return NextResponse.json(data, { status: upstream.status });
+    if (!upstream.ok) {
+      return NextResponse.json({ ok: false, error: data?.error || "Failed to resend code" }, { status: 200 });
+    }
+    return NextResponse.json({ ok: true, ...data }, { status: 200 });
   } catch (error) {
     console.error("Resend code proxy error:", error);
-    return NextResponse.json({ error: "upstream unavailable" }, { status: 502 });
+    return NextResponse.json({ ok: false, error: "Service temporarily unavailable" }, { status: 200 });
   }
 }
