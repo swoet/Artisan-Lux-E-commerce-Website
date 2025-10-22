@@ -1,11 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
-import { isAuthenticated, getCustomerEmail } from "@/lib/auth";
+import { isAuthenticated, getCustomerEmail, getCustomerName } from "@/lib/auth";
 
 export default function DebugAuthPage() {
   const [cookies, setCookies] = useState<string>("");
   const [isAuth, setIsAuth] = useState(false);
   const [email, setEmail] = useState<string | null>(null);
+  const [name, setName] = useState<string | null>(null);
 
   useEffect(() => {
     // Get all cookies
@@ -14,6 +15,7 @@ export default function DebugAuthPage() {
     // Check auth status
     setIsAuth(isAuthenticated());
     setEmail(getCustomerEmail());
+    setName(getCustomerName());
   }, []);
 
   return (
@@ -27,6 +29,13 @@ export default function DebugAuthPage() {
               <h2 className="text-xl font-semibold mb-2">Authentication Status</h2>
               <p className={`text-lg ${isAuth ? "text-green-400" : "text-red-400"}`}>
                 {isAuth ? "✅ Authenticated" : "❌ Not Authenticated"}
+              </p>
+            </div>
+
+            <div>
+              <h2 className="text-xl font-semibold mb-2">Customer Name</h2>
+              <p className="text-lg">
+                {name || "No name found"}
               </p>
             </div>
 
@@ -60,6 +69,7 @@ export default function DebugAuthPage() {
                 <li>• <code className="text-green-400">customer_session</code> - httpOnly (not visible here)</li>
                 <li>• <code className="text-green-400">customer_auth</code> - should be "true"</li>
                 <li>• <code className="text-green-400">customer_email</code> - your email address</li>
+                <li>• <code className="text-green-400">customer_name</code> - your full name</li>
               </ul>
             </div>
           </div>

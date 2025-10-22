@@ -22,6 +22,22 @@ export function getCustomerEmail(): string | null {
   }
 }
 
+export function getCustomerName(): string | null {
+  if (typeof window === 'undefined') return null;
+  
+  const cookies = document.cookie.split(';');
+  const nameCookie = cookies.find(cookie => cookie.trim().startsWith('customer_name='));
+  
+  if (!nameCookie) return null;
+  
+  try {
+    const value = nameCookie.split('=')[1];
+    return decodeURIComponent(value) || null;
+  } catch {
+    return null;
+  }
+}
+
 export function logout(): void {
   if (typeof window === 'undefined') return;
   
@@ -29,6 +45,7 @@ export function logout(): void {
   document.cookie = 'customer_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
   document.cookie = 'customer_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
   document.cookie = 'customer_email=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+  document.cookie = 'customer_name=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
   
   // Redirect to home
   window.location.href = '/';

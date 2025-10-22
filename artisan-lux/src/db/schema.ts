@@ -132,16 +132,28 @@ export const cartItems = pgTable("cart_items", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const customers = pgTable(
+  "customers",
+  {
+    id: serial("id").primaryKey(),
+    email: varchar("email", { length: 160 }).notNull(),
+    name: varchar("name", { length: 160 }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    emailUnique: uniqueIndex("customers_email_unique").on(table.email),
+  })
+);
+
 export const orders = pgTable("orders", {
   id: serial("id").primaryKey(),
-  cartId: integer("cart_id").references(() => carts.id),
-  email: varchar("email", { length: 160 }).notNull(),
+  customerId: integer("customer_id").references(() => customers.id),
   total: numeric("total", { precision: 12, scale: 2 }).notNull(),
   currency: varchar("currency", { length: 3 }).notNull().default("USD"),
-  status: varchar("status", { length: 20 }).$type<"pending" | "paid" | "failed">().notNull().default("pending"),
-  paymentProofUrl: text("payment_proof_url"),
-  paymentMethod: varchar("payment_method", { length: 50 }), // bank_transfer, ecocash, onemoney, innbucks
+  status: varchar("status", { length: 16 }).notNull().default("pending"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export const orderItems = pgTable("order_items", {

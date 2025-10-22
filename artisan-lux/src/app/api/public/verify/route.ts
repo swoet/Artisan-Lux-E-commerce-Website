@@ -24,6 +24,9 @@ export async function POST(req: NextRequest) {
       const sessionValue = Buffer.from(`${email}:${Date.now()}`).toString("base64");
       const maxAge = 60 * 60 * 24 * 7; // 7 days
       
+      // Get customer name from response
+      const customerName = data.customer?.name || "";
+      
       // Set httpOnly session cookie (secure, can't be read by JS)
       res.cookies.set({
         name: "customer_session",
@@ -56,6 +59,19 @@ export async function POST(req: NextRequest) {
         maxAge,
         secure: process.env.NODE_ENV === "production",
       });
+      
+      // Set customer name in a readable cookie
+      if (customerName) {
+        res.cookies.set({
+          name: "customer_name",
+          value: customerName,
+          httpOnly: false,
+          sameSite: "lax",
+          path: "/",
+          maxAge,
+          secure: process.env.NODE_ENV === "production",
+        });
+      }
     }
     return res;
   } catch {
