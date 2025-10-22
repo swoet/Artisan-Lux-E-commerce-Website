@@ -35,11 +35,20 @@ function slugFromKey(key: string) {
 }
 
 async function fetchTaxonomy(): Promise<{ key: string; name: string; children?: { key: string; name: string }[] }[]> {
-  const origin = process.env.NEXT_PUBLIC_ADMIN_ORIGIN ?? "http://localhost:3001";
-  const res = await fetch(`${origin}/api/catalog/taxonomy`, { cache: "no-store" });
-  if (!res.ok) return [];
-  const j = await res.json().catch(() => ({ taxonomy: [] }));
-  return j.taxonomy ?? [];
+  const origin = process.env.NEXT_PUBLIC_ADMIN_ORIGIN || process.env.ADMIN_ORIGIN || "";
+  if (!origin) return [];
+  try {
+    const controller = new AbortController();
+    const t = setTimeout(() => controller.abort(), 2000);
+    const res = await fetch(`${origin}/api/catalog/taxonomy`, { cache: "no-store", signal: controller.signal });
+    clearTimeout(t);
+    if (!res.ok) return [];
+    const j = await res.json().catch(() => ({ taxonomy: [] }));
+    return j.taxonomy ?? [];
+  } catch {
+    // Swallow network errors and fall back to promo items
+    return [];
+  }
 }
 
 function promoItems(limit: number): CategoryCard[] {
