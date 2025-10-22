@@ -5,8 +5,6 @@ const nextConfig = {
     domains: ['res.cloudinary.com'],
     unoptimized: process.env.NODE_ENV === 'development',
   },
-  // Output configuration for deployment
-  output: 'standalone',
   // Disable ESLint during build (warnings won't block deployment)
   eslint: {
     ignoreDuringBuilds: true,
