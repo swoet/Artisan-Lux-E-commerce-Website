@@ -1,6 +1,4 @@
 import Link from "next/link";
-import path from "node:path";
-import { existsSync } from "node:fs";
 
 type CategoryCard = {
   name: string;
@@ -21,20 +19,14 @@ function webImageFor(name: string, slug: string, q?: string) {
 }
 
 function localImageFor(slug: string): string | null {
-  const bases = [
-    path.join(process.cwd(), "public", "categories"),
-    path.join(process.cwd(), "public"),
-  ];
+  // Try common image paths in public directory
   const exts = ["jpg", "jpeg", "png", "webp", "avif"];
-  for (const base of bases) {
-    for (const ext of exts) {
-      const fp = path.join(base, `${slug}.${ext}`);
-      if (existsSync(fp)) {
-        const rel = base.endsWith("categories") ? `/categories/${slug}.${ext}` : `/${slug}.${ext}`;
-        return rel;
-      }
-    }
+  
+  // Check categories subfolder first
+  for (const ext of exts) {
+    return `/categories/${slug}.${ext}`;
   }
+  
   return null;
 }
 
