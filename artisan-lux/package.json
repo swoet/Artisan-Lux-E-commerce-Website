@@ -12,6 +12,9 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio"
   },
+  "overrides": {
+    "three": "^0.180.0"
+  },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.0",
     "@google/model-viewer": "^4.1.0",
