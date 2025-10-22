@@ -1,5 +1,9 @@
 import { listCustomers, recentAuthEvents } from "@/db/queries/customers";
 
+// Force dynamic rendering - don't prerender at build time
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 async function getData() {
   const customers = await listCustomers({ limit: 50, offset: 0 });
   const events = await recentAuthEvents(50);
