@@ -18,25 +18,19 @@ function webImageFor(name: string, slug: string, q?: string) {
   return `https://loremflickr.com/960/640/${query}?lock=${seed}`;
 }
 
-async function localImageFor(slug: string): Promise<string | null> {
-  // Prefer modern formats, but check what actually exists on disk
-  const exts = ["webp", "jpg", "jpeg", "png", "avif"] as const;
-  try {
-    const { access } = await import("fs/promises");
-    const { join } = await import("path");
-    for (const ext of exts) {
-      const abs = join(process.cwd(), "public", "categories", `${slug}.${ext}`);
-      try {
-        await access(abs);
-        return `/categories/${slug}.${ext}`;
-      } catch {
-        // continue checking next ext
-      }
-    }
-  } catch {
-    // fs not available (shouldn't happen on server components)
-  }
-  return null;
+// Known local category images in /public/categories
+const LOCAL_CATEGORY_IMAGES: Record<string, string> = {
+  "art-collectibles": "/categories/art-collectibles.webp",
+  "beauty-grooming": "/categories/beauty-grooming.jpg",
+  "electronics": "/categories/electronics.jpg",
+  "fashion": "/categories/fashion.jpg",
+  "home-living": "/categories/home-living.jpg",
+  "outdoor-garden": "/categories/outdoor-garden.jpg",
+  "toys-games": "/categories/toys-games.jpg",
+};
+
+function localImageFor(slug: string): string | null {
+  return LOCAL_CATEGORY_IMAGES[slug] || null;
 }
 
 function slugFromKey(key: string) {
@@ -103,12 +97,10 @@ export default async function CategoryGrid({ limit }: { limit?: number }) {
   }));
 
   const baseCards: CategoryCard[] = (roots.length ? roots : promoItems(limit ?? 24));
-  const cards = await Promise.all(
-    baseCards.map(async (c) => ({
-      ...c,
-      imageUrl: (await localImageFor(c.slug)) || c.imageUrl,
-    }))
-  );
+  const cards = baseCards.map((c) => ({
+    ...c,
+    imageUrl: localImageFor(c.slug) || c.imageUrl,
+  }));
 
   return (
     <section aria-labelledby="home-categories" className="mt-24">
