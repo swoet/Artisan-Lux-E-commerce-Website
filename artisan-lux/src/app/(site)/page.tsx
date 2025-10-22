@@ -4,6 +4,9 @@ import Testimonials from "@/components/site/Testimonials";
 import LiveCatalogRefresh from "@/components/site/LiveCatalogRefresh.server";
 import UserMenu from "@/components/site/UserMenu";
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#2a1a10] to-[#1a0f08] text-white">
