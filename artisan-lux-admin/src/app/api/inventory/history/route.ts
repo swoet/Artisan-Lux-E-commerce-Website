@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = request.nextUrl;
     const productId = searchParams.get("productId");
 
-    let query = db
+    const baseQuery = db
       .select({
         id: inventoryHistory.id,
         productId: inventoryHistory.productId,
@@ -19,14 +19,16 @@ export async function GET(request: NextRequest) {
         createdAt: inventoryHistory.createdAt,
       })
       .from(inventoryHistory)
-      .innerJoin(products, eq(inventoryHistory.productId, products.id))
-      .orderBy(desc(inventoryHistory.createdAt));
+      .innerJoin(products, eq(inventoryHistory.productId, products.id));
 
-    if (productId) {
-      query = query.where(eq(inventoryHistory.productId, Number(productId)));
-    }
-
-    const history = await query.limit(100);
+    const history = productId
+      ? await baseQuery
+          .where(eq(inventoryHistory.productId, Number(productId)))
+          .orderBy(desc(inventoryHistory.createdAt))
+          .limit(100)
+      : await baseQuery
+          .orderBy(desc(inventoryHistory.createdAt))
+          .limit(100);
 
     return NextResponse.json({ history });
   } catch (error) {
