@@ -5,6 +5,7 @@ import UserMenu from "@/components/site/UserMenu";
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 export default function Home() {
   return (
