@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { db } from "@/db";
-import { orders } from "@/db/schema";
+import { orders, customers } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { emitOrderEvent } from "@/lib/socket";
 
@@ -41,22 +41,28 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(await file.arrayBuffer());
     await writeFile(filepath, buffer);
 
-    // Update order with payment proof URL
+    // Build URL to saved proof
     const proofUrl = `/uploads/payment-proofs/${filename}`;
-    await db
-      .update(orders)
-      .set({ 
-        paymentProofUrl: proofUrl,
-        paymentMethod: paymentMethod || "bank_transfer"
-      })
-      .where(eq(orders.id, parseInt(orderId, 10)));
 
-    // Emit real-time notification to admin
-    const order = (await db.select().from(orders).where(eq(orders.id, parseInt(orderId, 10))).limit(1))[0];
+    // Emit real-time notification to admin with customer email
+    const order = (
+      await db
+        .select({
+          id: orders.id,
+          total: orders.total,
+          currency: orders.currency,
+          email: customers.email,
+        })
+        .from(orders)
+        .leftJoin(customers, eq(customers.id, orders.customerId))
+        .where(eq(orders.id, parseInt(orderId, 10)))
+        .limit(1)
+    )[0];
+
     if (order) {
       emitOrderEvent("payment.proof.uploaded", {
         orderId: order.id,
-        email: order.email,
+        email: order.email ?? "",
         total: order.total,
         proofUrl,
         paymentMethod,

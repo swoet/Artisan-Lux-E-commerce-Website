@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { carts, cartItems, products, orders, orderItems, payments } from "@/db/schema";
+import { carts, cartItems, products, orders, orderItems, payments, customers } from "@/db/schema";
 import { and, asc, desc, eq } from "drizzle-orm";
 
 export type CartItemView = {
@@ -112,11 +112,16 @@ export async function createOrderFromCart(sessionToken: string, email: string, p
   if (items.length === 0) throw new Error("Cart is empty");
   const { totalDecimal, currency } = computeCartTotal(items);
 
+  // Find or create customer
+  const existingCustomer = await db.select().from(customers).where(eq(customers.email, email)).limit(1);
+  const customerId = existingCustomer[0]
+    ? existingCustomer[0].id
+    : (await db.insert(customers).values({ email, name: null }).returning())[0].id;
+
   const orderRows = await db
     .insert(orders)
     .values({
-      cartId: cart.id,
-      email,
+      customerId,
       total: asNumeric(totalDecimal),
       currency,
       status: "pending",
