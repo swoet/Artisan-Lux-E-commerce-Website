@@ -18,15 +18,24 @@ function webImageFor(name: string, slug: string, q?: string) {
   return `https://loremflickr.com/960/640/${query}?lock=${seed}`;
 }
 
-function localImageFor(slug: string): string | null {
-  // Try common image paths in public directory
-  const exts = ["jpg", "jpeg", "png", "webp", "avif"];
-  
-  // Check categories subfolder first
-  for (const ext of exts) {
-    return `/categories/${slug}.${ext}`;
+async function localImageFor(slug: string): Promise<string | null> {
+  // Prefer modern formats, but check what actually exists on disk
+  const exts = ["webp", "jpg", "jpeg", "png", "avif"] as const;
+  try {
+    const { access } = await import("fs/promises");
+    const { join } = await import("path");
+    for (const ext of exts) {
+      const abs = join(process.cwd(), "public", "categories", `${slug}.${ext}`);
+      try {
+        await access(abs);
+        return `/categories/${slug}.${ext}`;
+      } catch {
+        // continue checking next ext
+      }
+    }
+  } catch {
+    // fs not available (shouldn't happen on server components)
   }
-  
   return null;
 }
 
@@ -93,7 +102,13 @@ export default async function CategoryGrid({ limit }: { limit?: number }) {
     imageUrl: webImageFor(r.name, slugFromKey(r.key)),
   }));
 
-  const cards: CategoryCard[] = (roots.length ? roots : promoItems(limit ?? 24));
+  const baseCards: CategoryCard[] = (roots.length ? roots : promoItems(limit ?? 24));
+  const cards = await Promise.all(
+    baseCards.map(async (c) => ({
+      ...c,
+      imageUrl: (await localImageFor(c.slug)) || c.imageUrl,
+    }))
+  );
 
   return (
     <section aria-labelledby="home-categories" className="mt-24">
@@ -107,8 +122,7 @@ export default async function CategoryGrid({ limit }: { limit?: number }) {
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {cards.map((c) => {
-          const local = localImageFor(c.slug);
-          const src = local || c.imageUrl || webImageFor(c.name, c.slug);
+          const src = c.imageUrl || webImageFor(c.name, c.slug);
           const href = `/category/${c.slug}`;
           return (
             <Link
