@@ -34,11 +34,11 @@ type ProductView = {
 };
 
 async function getProduct(slug: string): Promise<ProductView | null> {
-  const siteOrigin = process.env.SITE_ORIGIN ?? "http://localhost:3000";
-  const res = await fetch(`${siteOrigin}/api/catalog-item-proxy/${encodeURIComponent(slug)}`, { next: { tags: ["product:" + slug, "catalog"], revalidate: 300 } });
+  // Fetch catalog and find by slug to avoid absolute-origin calls
+  const res = await fetch(`/api/catalog-proxy`, { next: { tags: ["product:" + slug, "catalog"], revalidate: 300 } });
   if (!res.ok) return null;
-  const data = (await res.json()) as { item: AdminItem | null };
-  const found = data.item;
+  const data = (await res.json()) as { items: AdminItem[] };
+  const found = (data.items || []).find((it) => it.slug === slug);
   if (!found) return null;
   const galleryUrls = (found.gallery || []).filter((g) => !!g?.url).map((g) => g.url as string);
   const videoUrl = (found.videoAsset && found.videoAsset.type === "video") ? (found.videoAsset.url ?? null) : null;

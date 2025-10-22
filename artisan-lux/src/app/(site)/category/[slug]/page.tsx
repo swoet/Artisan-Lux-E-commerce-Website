@@ -26,9 +26,9 @@ type TaxonomyNode = { key: string; name: string; children?: { key: string; name:
 type AdminItem = { id: number; name: string; slug: string; taxonomyKey?: string | null; priceDecimal?: number | null; currency?: string; updatedAt?: string | Date | null; coverImage?: { url: string | null } | null; descriptionRich?: string | null; materials?: string[] | null };
 
 async function fetchCatalog(): Promise<{ taxonomy: TaxonomyNode[]; items: AdminItem[]; categories: unknown[] }> {
-  const siteOrigin = process.env.SITE_ORIGIN ?? "http://localhost:3000";
   try {
-    const res = await fetch(`${siteOrigin}/api/catalog-proxy`, { next: { tags: ["catalog"], revalidate: 300 } });
+    // Use relative path so it works on any domain without env config
+    const res = await fetch(`/api/catalog-proxy`, { next: { tags: ["catalog"], revalidate: 300 } });
     if (!res.ok) return { taxonomy: TAXONOMY_FALLBACK as unknown as TaxonomyNode[], items: [], categories: [] };
     const data = await res.json();
     if (!data?.taxonomy?.length) data.taxonomy = TAXONOMY_FALLBACK as unknown as TaxonomyNodeFallback[];
