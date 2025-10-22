@@ -52,7 +52,7 @@ async function testResendDirect() {
     console.log("📊 Full Response:");
     console.log(JSON.stringify(result, null, 2));
     console.log("");
-    console.log("📬 Email ID:", result.data?.id || result.id || "N/A");
+    console.log("📬 Email ID:", result.data?.id || "N/A");
     console.log("");
     console.log("=".repeat(60));
     console.log("");
