@@ -163,3 +163,44 @@ export const payments = pgTable("payments", {
   status: varchar("status", { length: 20 }).$type<"pending" | "succeeded" | "failed">().notNull().default("pending"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+// Wishlist
+export const wishlists = pgTable(
+  "wishlists",
+  {
+    id: serial("id").primaryKey(),
+    sessionToken: varchar("session_token", { length: 255 }).notNull(),
+    email: varchar("email", { length: 160 }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    sessionUnique: uniqueIndex("wishlists_session_unique").on(table.sessionToken),
+  })
+);
+
+export const wishlistItems = pgTable("wishlist_items", {
+  id: serial("id").primaryKey(),
+  wishlistId: integer("wishlist_id").references(() => wishlists.id).notNull(),
+  productId: integer("product_id").references(() => products.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Inventory Management
+export const inventory = pgTable("inventory", {
+  id: serial("id").primaryKey(),
+  productId: integer("product_id").references(() => products.id).notNull(),
+  quantityInStock: integer("quantity_in_stock").notNull().default(0),
+  lowStockThreshold: integer("low_stock_threshold").notNull().default(5),
+  lastRestockedAt: timestamp("last_restocked_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const inventoryHistory = pgTable("inventory_history", {
+  id: serial("id").primaryKey(),
+  productId: integer("product_id").references(() => products.id).notNull(),
+  quantityChange: integer("quantity_change").notNull(), // +5 for restock, -1 for sale
+  reason: varchar("reason", { length: 50 }).notNull(), // restock, sale, adjustment
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});

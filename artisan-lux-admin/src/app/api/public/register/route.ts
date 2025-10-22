@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { customers } from "@/db/schema";
-import { createCustomer, recordAuthEvent } from "@/db/queries/customers";
+import { createCustomer } from "@/db/queries/customers";
 import { eq } from "drizzle-orm";
+import { createVerificationCode, sendVerificationEmail } from "@/lib/verification";
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
@@ -22,25 +23,16 @@ export async function POST(req: NextRequest) {
     }
 
     // Create new customer
-    const customer = await createCustomer({ email, name: name || null });
+    await createCustomer({ email, name: name || null });
 
-    // Record auth event
-    const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || null;
-    const userAgent = req.headers.get("user-agent") || null;
-    await recordAuthEvent({
-      customerId: customer.id,
-      type: "register",
-      ip,
-      userAgent,
-    });
+    // Generate and send verification code
+    const code = await createVerificationCode(email);
+    await sendVerificationEmail(email, code, "signup");
 
     return NextResponse.json({ 
-      ok: true, 
-      customer: { 
-        id: customer.id, 
-        email: customer.email, 
-        name: customer.name 
-      } 
+      ok: true,
+      message: "Verification code sent to your email",
+      requiresVerification: true
     });
   } catch (error) {
     console.error("Registration error:", error);

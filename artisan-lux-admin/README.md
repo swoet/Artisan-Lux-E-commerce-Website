@@ -7,16 +7,29 @@ Added in this fork:
 - Lightweight analytics script at `public/analytics.js`
 - Stripe checkout endpoint (optional)
 
-Env (.env):
+Env (.env.local):
 - DATABASE_URL=postgres://...
 - SEED_ADMIN_EMAIL=you@example.com
 - SEED_ADMIN_PASSWORD=strong-password
 - STRIPE_SECRET_KEY=sk_test_...
+- RESEND_API_KEY=re_... (required for email verification)
 - NEXT_PUBLIC_ADMIN_ORIGIN=http://localhost:3001
 - NEXT_PUBLIC_SITE_ORIGIN=http://localhost:3000
 
 To create the super admin: set SEED_* vars, then login once at /login.
 To track page views on any site: include `<script src="http://localhost:3001/analytics.js" async></script>`.
+
+## Email Verification Setup
+
+This project uses [Resend](https://resend.com) for passwordless authentication with 6-digit verification codes.
+
+**Quick Setup:**
+1. Sign up at [resend.com](https://resend.com)
+2. Get your API key from the dashboard
+3. Add `RESEND_API_KEY=re_your_key` to `.env.local`
+4. Test with: `npx tsx scripts/test-email.ts your-email@example.com`
+
+See [RESEND_SETUP.md](./RESEND_SETUP.md) for detailed configuration and troubleshooting.
 
 ## Getting Started
 

@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import InquiryModal from "./InquiryModal";
+import AuthModal from "./AuthModal";
+import { isAuthenticated } from "@/lib/auth";
 
 type ProductActionsProps = {
   productName: string;
@@ -11,10 +13,21 @@ type ProductActionsProps = {
 
 export default function ProductActions({ productName, productSlug }: ProductActionsProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [loading, setLoading] = useState<"none" | "cart" | "buy">("none");
   const [message, setMessage] = useState<string>("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    setIsLoggedIn(isAuthenticated());
+  }, []);
 
   async function addToCart() {
+    if (!isLoggedIn) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+
     setLoading("cart");
     setMessage("");
     try {
@@ -34,6 +47,11 @@ export default function ProductActions({ productName, productSlug }: ProductActi
   }
 
   async function buyNow() {
+    if (!isLoggedIn) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+
     setLoading("buy");
     setMessage("");
     try {
@@ -97,6 +115,16 @@ export default function ProductActions({ productName, productSlug }: ProductActi
         productSlug={productSlug}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+      />
+
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onSuccess={() => {
+          setIsLoggedIn(true);
+          setMessage("Successfully logged in! You can now make your purchase.");
+          setTimeout(() => setMessage(""), 3000);
+        }}
       />
     </>
   );

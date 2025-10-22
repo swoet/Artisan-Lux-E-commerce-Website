@@ -129,6 +129,18 @@ export const authEvents = pgTable("auth_events", {
 });
 
 /**
+ * Email verification codes for passwordless authentication
+ */
+export const verificationCodes = pgTable("verification_codes", {
+  id: serial("id").primaryKey(),
+  email: varchar("email", { length: 160 }).notNull(),
+  code: varchar("code", { length: 6 }).notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  used: boolean("used").notNull().default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+/**
  * Page views (for analytics & map)
  */
 export const pageViews = pgTable(

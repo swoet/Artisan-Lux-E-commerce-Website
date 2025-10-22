@@ -36,6 +36,13 @@
       "when": 1761074553537,
       "tag": "0004_pale_lockjaw",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1761079957942,
+      "tag": "0005_simple_stature",
+      "breakpoints": true
     }
   ]
 }

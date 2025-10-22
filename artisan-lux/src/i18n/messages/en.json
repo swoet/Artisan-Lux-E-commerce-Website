@@ -1,0 +1,43 @@
+{
+  "common": {
+    "cart": "Cart",
+    "wishlist": "Wishlist",
+    "orders": "Orders",
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "search": "Search",
+    "filter": "Filter",
+    "sortBy": "Sort By",
+    "addToCart": "Add to Cart",
+    "addToWishlist": "Add to Wishlist",
+    "viewDetails": "View Details",
+    "loading": "Loading...",
+    "error": "Error"
+  },
+  "home": {
+    "title": "Artisan Luxury",
+    "subtitle": "Curated excellence, crafted for the discerning",
+    "exploreCollection": "Explore Collection",
+    "featuredProducts": "Featured Products",
+    "newArrivals": "New Arrivals"
+  },
+  "product": {
+    "price": "Price",
+    "material": "Material",
+    "description": "Description",
+    "specifications": "Specifications",
+    "addedToCart": "Added to cart",
+    "outOfStock": "Out of Stock",
+    "inStock": "In Stock"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "shippingAddress": "Shipping Address",
+    "paymentMethod": "Payment Method",
+    "orderSummary": "Order Summary",
+    "placeOrder": "Place Order",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "total": "Total"
+  }
+}

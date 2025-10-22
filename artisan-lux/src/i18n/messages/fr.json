@@ -1,0 +1,43 @@
+{
+  "common": {
+    "cart": "Panier",
+    "wishlist": "Liste de souhaits",
+    "orders": "Commandes",
+    "signIn": "Se connecter",
+    "signOut": "Se déconnecter",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "sortBy": "Trier par",
+    "addToCart": "Ajouter au panier",
+    "addToWishlist": "Ajouter aux favoris",
+    "viewDetails": "Voir les détails",
+    "loading": "Chargement...",
+    "error": "Erreur"
+  },
+  "home": {
+    "title": "Artisan Luxe",
+    "subtitle": "Excellence organisée, conçue pour les connaisseurs",
+    "exploreCollection": "Explorer la collection",
+    "featuredProducts": "Produits en vedette",
+    "newArrivals": "Nouveautés"
+  },
+  "product": {
+    "price": "Prix",
+    "material": "Matériau",
+    "description": "Description",
+    "specifications": "Spécifications",
+    "addedToCart": "Ajouté au panier",
+    "outOfStock": "Rupture de stock",
+    "inStock": "En stock"
+  },
+  "checkout": {
+    "title": "Paiement",
+    "shippingAddress": "Adresse de livraison",
+    "paymentMethod": "Mode de paiement",
+    "orderSummary": "Récapitulatif de la commande",
+    "placeOrder": "Passer la commande",
+    "subtotal": "Sous-total",
+    "shipping": "Livraison",
+    "total": "Total"
+  }
+}

@@ -9,7 +9,7 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-316192?style=for-the-badge&logo=postgresql)](https://www.postgresql.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.0-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
 
-**An immersive, luxury-first shopping experience with advanced animations, 3D product visualization, and real-time admin capabilities.**
+**An immersive, luxury-first shopping experience with GSAP animations, 3D/AR product visualization, advanced search, multi-currency support, and real-time admin capabilities.**
 
 [Features](#-features) • [Architecture](#-architecture) • [Tech Stack](#-tech-stack) • [Getting Started](#-getting-started)
 
@@ -21,35 +21,52 @@
 
 **Artisan Lux** is a dual-frontend luxury e-commerce platform designed for premium artisan goods. Built with performance, aesthetics, and scalability at its core, it delivers:
 
-- 🎨 **Luxury Design System** — Elegant serif typography (Playfair Display) paired with clean sans-serif (Inter)
+- 🎨 **Luxury Design System** — Elegant serif typography with GSAP scroll animations
 - ⚡ **Instant Updates** — On-demand ISR via `revalidateTag` for real-time catalog changes
-- 🛍️ **Full Shopping Experience** — Cart, checkout, manual payment processing, and order management
+- 🛍️ **Full Shopping Experience** — Cart, wishlist, checkout, order history, and multi-currency support
 - 📊 **Real-time Analytics** — Geographic visitor tracking with interactive maps
-- 🔐 **Secure Admin Portal** — Complete CMS for catalog, users, and orders
-- 🌐 **WebSocket Notifications** — Live order alerts for admin dashboard
+- 🔐 **Secure Admin Portal** — Complete CMS with inventory management
+- 🌐 **WebSocket Notifications** — Live order alerts and email notifications
+- 🔍 **Advanced Search** — Algolia-powered instant search with filters
+- 🌍 **Global Ready** — Multi-language (i18n) and multi-currency support
+- 📦 **3D/AR Preview** — Three.js 3D viewer and WebXR AR experiences
 
 ---
 
 ## ✨ Features
 
 ### 🎭 **User Experience**
-- **Immersive Product Browsing** — Category-based navigation with filterable product grids
+- **Immersive Product Browsing** — GSAP scroll animations with advanced filtering
+- **3D/AR Product Viewing** — Interactive Three.js 3D models with WebXR AR support
 - **Rich Product Pages** — High-resolution galleries, material details, and pricing
 - **Shopping Cart & Checkout** — Seamless cart management with manual payment verification
+- **Wishlist Management** — Save and organize favorite products
+- **Order History** — Track past orders, payment status, and order details
+- **Advanced Search** — Algolia instant search with autocomplete and filters
+- **Multi-Currency** — Shop in USD, EUR, GBP, or ZWL with live exchange rates
+- **Multi-Language** — Browse in English, French, or Spanish
 - **User Authentication** — Secure sign-up and sign-in with session management
 - **Responsive Design** — Optimized for mobile, tablet, and desktop
 
 ### 🔧 **Admin Dashboard**
 - **Catalog Management** — Full CRUD for categories and products
-- **Media Management** — Cloudinary integration for image optimization
+- **Inventory Management** — Stock tracking, low stock alerts, and history
+- **Media Management** — Cloudinary integration for images and 3D models
 - **User Management** — Customer and admin role administration
 - **Order Dashboard** — Real-time order monitoring with WebSocket updates
 - **Analytics** — Geographic visitor tracking with Leaflet maps
+- **Email Marketing** — Order confirmations, abandoned cart, newsletters
+- **Search Indexing** — Sync products to Algolia for instant search
 - **Instant Publishing** — Changes propagate to the live site in ≤5 seconds
 
 ### 🚀 **Technical Excellence**
 - **On-Demand ISR** — Next.js 15 with strategic cache invalidation
 - **Type-Safe Database** — Drizzle ORM with PostgreSQL
+- **Advanced Animations** — GSAP with ScrollTrigger for smooth luxury scrolling
+- **3D Graphics** — React Three Fiber for interactive product visualization
+- **Search & Discovery** — Algolia InstantSearch with faceted filtering
+- **Internationalization** — Next-intl for multi-language support
+- **Email Service** — Resend for transactional and marketing emails
 - **Payment Processing** — Manual payment verification with proof of payment uploads
 - **Real-time Events** — Socket.io for live admin notifications
 - **Security** — Bcrypt password hashing, session tokens, CSRF protection
@@ -151,6 +168,8 @@ erDiagram
     PRODUCTS ||--o| MEDIA_ASSETS : "3D model"
     PRODUCTS ||--o{ CART_ITEMS : "in cart"
     PRODUCTS ||--o{ ORDER_ITEMS : "ordered"
+    PRODUCTS ||--o{ WISHLIST_ITEMS : "wished"
+    PRODUCTS ||--o| INVENTORY : "stock"
     
     CARTS ||--o{ CART_ITEMS : contains
     ORDERS ||--o{ ORDER_ITEMS : contains
@@ -161,6 +180,8 @@ erDiagram
     CUSTOMERS ||--o{ AUTH_EVENTS : generates
     
     ADMINS ||--o{ SESSIONS : authenticates
+    
+    WISHLISTS ||--o{ WISHLIST_ITEMS : contains
     
     CATEGORIES {
         int id PK
@@ -262,6 +283,34 @@ erDiagram
         string type
         string ip
     }
+    
+    WISHLISTS {
+        int id PK
+        string sessionToken UK
+        string email
+    }
+    
+    WISHLIST_ITEMS {
+        int id PK
+        int wishlistId FK
+        int productId FK
+    }
+    
+    INVENTORY {
+        int id PK
+        int productId FK
+        int quantityInStock
+        int lowStockThreshold
+        timestamp lastRestockedAt
+    }
+    
+    INVENTORY_HISTORY {
+        int id PK
+        int productId FK
+        int quantityChange
+        string reason
+        text notes
+    }
 ```
 
 ---
@@ -276,6 +325,10 @@ erDiagram
 - **Framework:** Next.js 15.5 (App Router)
 - **Language:** TypeScript 5
 - **Styling:** Tailwind CSS 4
+- **Animations:** GSAP + ScrollTrigger
+- **3D Graphics:** React Three Fiber, Three.js
+- **Search:** Algolia InstantSearch
+- **i18n:** Next-intl
 - **Fonts:** Playfair Display, Inter
 - **Real-time:** Socket.io Client
 - **Maps:** React Leaflet
@@ -288,9 +341,12 @@ erDiagram
 - **API:** Next.js Route Handlers
 - **Database:** PostgreSQL (Vercel Postgres)
 - **ORM:** Drizzle ORM
+- **Search:** Algolia (indexing)
+- **Email:** Resend
 - **Auth:** bcryptjs + Session Tokens
 - **Payments:** Manual Verification System
 - **Real-time:** Socket.io Server
+- **Currency:** Exchange Rate API
 
 </td>
 </tr>
@@ -303,6 +359,11 @@ erDiagram
   "next": "15.5.6",
   "react": "19.2.0",
   "drizzle-orm": "^0.44.6",
+  "gsap": "latest",
+  "@react-three/fiber": "latest",
+  "algoliasearch": "latest",
+  "next-intl": "latest",
+  "resend": "latest",
   "socket.io": "^4.8.1",
   "zod": "^4.1.12"
 }
@@ -311,10 +372,13 @@ erDiagram
 </td>
 <td width="50%">
 
-### 🔧 DevOps
+### 🔧 DevOps & Services
 - **Deployment:** Vercel
 - **Database:** Vercel Postgres
 - **Media Storage:** Cloudinary
+- **Search:** Algolia
+- **Email:** Resend
+- **Exchange Rates:** exchangerate-api.com
 - **Version Control:** Git
 - **Linting:** ESLint
 - **Type Checking:** TypeScript
@@ -338,17 +402,31 @@ D:\Phethan Marketing/
 │   │   │   │   ├── categories/        # Category listing
 │   │   │   │   ├── category/[slug]/   # Category detail
 │   │   │   │   ├── product/[slug]/    # Product detail page
+│   │   │   │   ├── wishlist/          # Wishlist page
+│   │   │   │   ├── orders/            # Order history
+│   │   │   │   ├── search/            # Algolia search
 │   │   │   │   ├── signin/            # Customer auth
 │   │   │   │   └── signup/
 │   │   │   ├── api/
 │   │   │   │   ├── cart/              # Cart operations
+│   │   │   │   ├── wishlist/          # Wishlist API
 │   │   │   │   ├── checkout/          # Manual checkout process
 │   │   │   │   ├── upload-payment-proof/ # Payment proof uploads
+│   │   │   │   ├── products/filter/   # Advanced filtering
+│   │   │   │   ├── newsletter/        # Email subscriptions
 │   │   │   │   ├── catalog-proxy/     # Category/product proxies
 │   │   │   │   └── revalidate/        # ISR invalidation
 │   │   │   └── layout.tsx
 │   │   ├── components/
 │   │   │   └── site/
+│   │   │       ├── AnimatedHero.tsx        # GSAP hero animations
+│   │   │       ├── AnimatedProductCard.tsx # Scroll animations
+│   │   │       ├── Product3DViewer.tsx     # Three.js viewer
+│   │   │       ├── AlgoliaSearch.tsx       # Instant search
+│   │   │       ├── WishlistButton.tsx      # Wishlist actions
+│   │   │       ├── CurrencySelector.tsx    # Currency switcher
+│   │   │       ├── LanguageSelector.tsx    # Language switcher
+│   │   │       ├── AdvancedProductFilter.tsx
 │   │   │       ├── CategoryGrid.tsx
 │   │   │       ├── ProductGallery.tsx
 │   │   │       ├── InquiryModal.tsx
@@ -356,7 +434,14 @@ D:\Phethan Marketing/
 │   │   ├── db/
 │   │   │   ├── schema.ts              # Database schema
 │   │   │   └── queries/               # Type-safe queries
+│   │   ├── i18n/
+│   │   │   ├── request.ts             # i18n configuration
+│   │   │   └── messages/              # Translations (en, fr, es)
 │   │   └── lib/
+│   │       ├── gsap-utils.ts          # Animation utilities
+│   │       ├── algolia.ts             # Search client
+│   │       ├── currency.ts            # Multi-currency
+│   │       ├── email.ts               # Email templates
 │   │       ├── cache-tags.ts          # ISR tag strategy
 │   │       ├── socket.ts              # WebSocket client
 │   │       └── taxonomy.ts
@@ -370,6 +455,7 @@ D:\Phethan Marketing/
 │   │   │   ├── login/                 # Admin authentication
 │   │   │   ├── catalog/               # Product management
 │   │   │   ├── categories/            # Category CRUD
+│   │   │   ├── inventory/             # Inventory management
 │   │   │   ├── users/                 # Customer management
 │   │   │   ├── admins/                # Admin user management
 │   │   │   ├── analytics/             # Visitor analytics
@@ -380,10 +466,13 @@ D:\Phethan Marketing/
 │   │   │       │   ├── media/         # Cloudinary uploads
 │   │   │       │   └── users/
 │   │   │       ├── catalog/           # Catalog CRUD
+│   │   │       ├── inventory/         # Stock management
+│   │   │       ├── algolia/sync/      # Search indexing
 │   │   │       ├── analytics/         # Analytics data
 │   │   │       └── payments/checkout/ # Manual order creation
 │   │   ├── components/
 │   │   │   ├── AdminsManager.tsx
+│   │   │   ├── InventoryManager.tsx   # Stock management UI
 │   │   │   ├── AnalyticsClient.tsx
 │   │   │   ├── VisitorsMap.tsx        # Leaflet map
 │   │   │   └── UploadField.tsx
@@ -391,13 +480,16 @@ D:\Phethan Marketing/
 │   │   │   ├── schema.ts              # Shared schema
 │   │   │   └── queries/
 │   │   └── lib/
+│   │       ├── algolia.ts             # Search indexing
 │   │       ├── cloudinary.ts          # Media upload
+│   │       ├── email.ts               # Email service
 │   │       ├── payment-utils.ts       # Payment verification utils
 │   │       └── revalidate.ts          # ISR trigger
 │   └── package.json
 │
 ├── 📄 PRD.md                          # Product Requirements Document
-└── 📘 README.md                       # This file
+├── 📘 README.md                       # This file
+└── 📋 IMPLEMENTATION_GUIDE.md         # Feature implementation guide
 ```
 
 ---
@@ -438,6 +530,7 @@ Create `.env.local` in both directories:
 **artisan-lux/.env.local:**
 ```bash
 DATABASE_URL=postgres://...
+
 # Payment Details
 BANK_NAME=Your Bank Name
 BANK_ACCOUNT_NAME=Your Full Name
@@ -445,22 +538,43 @@ BANK_ACCOUNT_NUMBER=1234567890
 BANK_BRANCH=Branch Name
 ECOCASH_NUMBER=+263771234567
 ECOCASH_NAME=Your Registered Name
+
+# Site URLs
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
+
+# Algolia Search
+NEXT_PUBLIC_ALGOLIA_APP_ID=your_algolia_app_id
+NEXT_PUBLIC_ALGOLIA_SEARCH_KEY=your_search_key
+
+# Resend Email
+RESEND_API_KEY=your_resend_api_key
 ```
 
 **artisan-lux-admin/.env.local:**
 ```bash
 DATABASE_URL=postgres://...
+
+# Cloudinary
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=...
 CLOUDINARY_API_SECRET=...
+
 # Payment Details
 BANK_NAME=Your Bank Name
 BANK_ACCOUNT_NAME=Your Full Name
 BANK_ACCOUNT_NUMBER=1234567890
 ECOCASH_NUMBER=+263771234567
+
+# Site URLs
 NEXT_PUBLIC_ADMIN_URL=http://localhost:3001
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
+
+# Algolia Search (Admin key for indexing)
+NEXT_PUBLIC_ALGOLIA_APP_ID=your_algolia_app_id
+ALGOLIA_ADMIN_KEY=your_admin_key
+
+# Resend Email
+RESEND_API_KEY=your_resend_api_key
 ```
 
 4. **Database Setup**
@@ -624,20 +738,28 @@ npm run db:generate
 - [x] Real-time order notifications
 - [x] Geographic analytics
 
-### 🚧 Phase 2: Enhancements (In Progress)
-- [ ] GSAP scroll animations
-- [ ] Three.js 3D product viewer
-- [ ] Advanced product filtering
-- [ ] Wishlist functionality
-- [ ] Customer order history
+### ✅ Phase 2: Enhancements (Completed)
+- [x] GSAP scroll animations
+- [x] Three.js 3D product viewer
+- [x] Advanced product filtering
+- [x] Wishlist functionality
+- [x] Customer order history
 
-### 🔮 Phase 3: Advanced Features
-- [ ] Multi-currency support
-- [ ] Internationalization (i18n)
-- [ ] AR product previews
-- [ ] Advanced search with Algolia
-- [ ] Email marketing integration
-- [ ] Inventory management
+### ✅ Phase 3: Advanced Features (Completed)
+- [x] Multi-currency support (USD, EUR, GBP, ZWL)
+- [x] Internationalization (English, French, Spanish)
+- [x] AR product previews (WebXR)
+- [x] Advanced search with Algolia
+- [x] Email marketing integration (Resend)
+- [x] Inventory management system
+
+### 🔮 Phase 4: Future Enhancements
+- [ ] Payment gateway integration (Stripe/PayPal)
+- [ ] Customer reviews and ratings
+- [ ] Loyalty program
+- [ ] Advanced analytics dashboard
+- [ ] Mobile apps (React Native)
+- [ ] AI-powered recommendations
 
 ---
 
@@ -664,17 +786,49 @@ GET /api/catalog-item-proxy/luxury-watches
 Response: { category: Category, products: Product[] }
 ```
 
+### Product Filtering API
+```typescript
+GET /api/products/filter?minPrice=100&maxPrice=5000&materials=Gold,Silver&sortBy=price_asc
+Response: { products: Product[] }
+```
+
+### Wishlist API
+```typescript
+GET /api/wishlist
+Response: { items: WishlistItem[] }
+
+POST /api/wishlist { productId: 123 }
+Response: { message: "Added to wishlist" }
+
+DELETE /api/wishlist?itemId=456
+Response: { message: "Removed from wishlist" }
+```
+
+### Inventory API
+```typescript
+GET /api/inventory
+Response: { inventory: InventoryItem[] }
+
+POST /api/inventory { productId: 123, quantityChange: 10, reason: "restock" }
+Response: { success: true, newQuantity: 100 }
+```
+
+### Newsletter API
+```typescript
+POST /api/newsletter/subscribe { email: "user@example.com", name: "User" }
+Response: { success: true, message: "Subscribed successfully" }
+```
+
 ---
 
-## 🤝 Contributing
+## 🤝 Development Guidelines
 
-This is a private luxury e-commerce platform. For internal development:
+For internal development:
 
 1. Create feature branches from `main`
 2. Follow TypeScript strict mode
 3. Run `npm run typecheck` before commits
-4. Update tests for new features
-5. Document API changes
+4. Maintain comprehensive documentation
 
 ---
 
@@ -684,13 +838,14 @@ Proprietary and confidential. All rights reserved.
 
 ---
 
-## 👨‍💻 Development Team
-
-Built with ❤️ by the Artisan Lux team
+## 👨‍💻 Development
 
 **Key Technologies:**
 - Next.js 15 • TypeScript • PostgreSQL • Drizzle ORM
-- Manual Payments • Cloudinary • Socket.io • Tailwind CSS
+- GSAP • Three.js • Algolia • Resend • Next-intl
+- Manual Payments • Socket.io • Tailwind CSS
+
+**📋 For detailed feature implementation guide, see [IMPLEMENTATION_GUIDE.md](./IMPLEMENTATION_GUIDE.md)**
 
 ---
 

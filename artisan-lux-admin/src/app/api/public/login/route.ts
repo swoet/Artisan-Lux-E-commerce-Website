@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { customers } from "@/db/schema";
-import { recordAuthEvent } from "@/db/queries/customers";
 import { eq } from "drizzle-orm";
+import { createVerificationCode, sendVerificationEmail } from "@/lib/verification";
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
@@ -20,23 +20,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Account not found. Please sign up first." }, { status: 404 });
     }
 
-    // Record auth event
-    const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || null;
-    const userAgent = req.headers.get("user-agent") || null;
-    await recordAuthEvent({
-      customerId: customer.id,
-      type: "login",
-      ip,
-      userAgent,
-    });
+    // Generate and send verification code
+    const code = await createVerificationCode(email);
+    await sendVerificationEmail(email, code, "signin");
 
     return NextResponse.json({ 
-      ok: true, 
-      customer: { 
-        id: customer.id, 
-        email: customer.email, 
-        name: customer.name 
-      } 
+      ok: true,
+      message: "Verification code sent to your email",
+      requiresVerification: true
     });
   } catch (error) {
     console.error("Login error:", error);

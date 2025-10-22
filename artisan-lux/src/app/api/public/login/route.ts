@@ -15,20 +15,10 @@ export async function POST(req: NextRequest) {
     });
     const data = await upstream.json().catch(() => ({}));
     const res = NextResponse.json(data, { status: upstream.status });
-    if (upstream.ok) {
-      // lightweight session cookie so middleware can gate pages
-      res.cookies.set({
-        name: "customer_session",
-        value: Buffer.from(`${email}:${Date.now()}`).toString("base64"),
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        maxAge: 60 * 60 * 24 * 7,
-        secure: true,
-      });
-    }
+    // Note: Session cookie is set after verification, not here
     return res;
-  } catch {
+  } catch (error) {
+    console.error("Login proxy error:", error);
     return NextResponse.json({ error: "upstream unavailable" }, { status: 502 });
   }
 }

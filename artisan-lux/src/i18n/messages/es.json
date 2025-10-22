@@ -1,0 +1,43 @@
+{
+  "common": {
+    "cart": "Carrito",
+    "wishlist": "Lista de deseos",
+    "orders": "Pedidos",
+    "signIn": "Iniciar sesión",
+    "signOut": "Cerrar sesión",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "sortBy": "Ordenar por",
+    "addToCart": "Añadir al carrito",
+    "addToWishlist": "Añadir a favoritos",
+    "viewDetails": "Ver detalles",
+    "loading": "Cargando...",
+    "error": "Error"
+  },
+  "home": {
+    "title": "Artesanía de Lujo",
+    "subtitle": "Excelencia curada, diseñada para los conocedores",
+    "exploreCollection": "Explorar colección",
+    "featuredProducts": "Productos destacados",
+    "newArrivals": "Novedades"
+  },
+  "product": {
+    "price": "Precio",
+    "material": "Material",
+    "description": "Descripción",
+    "specifications": "Especificaciones",
+    "addedToCart": "Añadido al carrito",
+    "outOfStock": "Agotado",
+    "inStock": "En stock"
+  },
+  "checkout": {
+    "title": "Pagar",
+    "shippingAddress": "Dirección de envío",
+    "paymentMethod": "Método de pago",
+    "orderSummary": "Resumen del pedido",
+    "placeOrder": "Realizar pedido",
+    "subtotal": "Subtotal",
+    "shipping": "Envío",
+    "total": "Total"
+  }
+}
