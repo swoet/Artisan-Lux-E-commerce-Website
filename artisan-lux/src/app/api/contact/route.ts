@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     // Send email using Resend
     const resend = getResendClient();
     await resend.emails.send({
-      from: "Artisan Lux Contact <onboarding@resend.dev>", // Use verified domain in production
+      from: "Artisan Lux Contact <no-reply@artisan-lux.com>",
       to: "shawnmutogo5@gmail.com", // Your email
       replyTo: email,
       subject: `Contact Form: ${subject}`,

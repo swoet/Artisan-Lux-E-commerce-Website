@@ -94,7 +94,7 @@ export async function sendOrderConfirmationEmail(data: OrderConfirmationData) {
 
     const resend = getResendClient();
     const result = await resend.emails.send({
-      from: "Artisan Lux <orders@artisanlux.com>",
+      from: "Artisan Lux <no-reply@artisan-lux.com>",
       to: data.customerEmail,
       subject: `Order Confirmation #${data.orderId}`,
       html,
@@ -163,7 +163,7 @@ export async function sendAbandonedCartEmail(data: AbandonedCartData) {
 
     const resend = getResendClient();
     const result = await resend.emails.send({
-      from: "Artisan Lux <hello@artisanlux.com>",
+      from: "Artisan Lux <no-reply@artisan-lux.com>",
       to: data.customerEmail,
       subject: "Your Artisan Lux cart is waiting",
       html,
@@ -181,7 +181,7 @@ export async function sendNewsletterEmail(data: NewsletterData) {
   try {
     const resend = getResendClient();
     const result = await resend.emails.send({
-      from: "Artisan Lux <newsletter@artisanlux.com>",
+      from: "Artisan Lux <no-reply@artisan-lux.com>",
       to: data.recipientEmail,
       subject: data.subject,
       html: data.content,
