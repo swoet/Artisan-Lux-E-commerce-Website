@@ -96,7 +96,7 @@ export async function sendVerificationEmail(
     console.log(`📧 Attempting to send verification email to: ${email}`);
     const resend = getResendClient();
     const result = await resend.emails.send({
-      from: "Artisan Lux <onboarding@resend.dev>",
+      from: "Artisan Lux <no-reply@artisan-lux.com>",
       to: email,
       subject,
       html,

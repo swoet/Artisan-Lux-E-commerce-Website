@@ -3,3 +3,6 @@
 **/.env*
 **/drizzle/*.sql
 **/.DS_Store
+
+# Local Netlify folder
+.netlify
