@@ -199,11 +199,11 @@ export function UploadField(props: {
           multiple={!!multiple}
           onChange={onChange}
           disabled={uploading}
-          className="rounded px-2 py-1 border border-[var(--color-border)] bg-transparent"
+          className="input"
         />
       </label>
       {uploading ? (
-        <p className="text-xs text-neutral-400 mt-1">Uploading {done}/{total} {!multiple ? `${percent}%` : ""}</p>
+        <p className="text-xs text-[var(--color-muted)] mt-1">Uploading {done}/{total} {!multiple ? `${percent}%` : ""}</p>
       ) : null}
       {error ? <p className="text-xs text-red-500 mt-1">{error}</p> : null}
       {preview && type === "image" ? (

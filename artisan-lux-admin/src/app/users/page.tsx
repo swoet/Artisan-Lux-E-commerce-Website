@@ -23,9 +23,9 @@ export default async function UsersPage() {
               <li key={u.id} className="py-2 text-sm flex items-center justify-between">
                 <div>
                   <div className="font-medium">{u.email}</div>
-                  {u.name ? <div className="text-neutral-400">{u.name}</div> : null}
+                  {u.name ? <div className="text-[var(--color-muted)]">{u.name}</div> : null}
                 </div>
-                <div className="text-neutral-400">{new Date(u.createdAt).toLocaleString()}</div>
+                <div className="text-[var(--color-muted)]">{new Date(u.createdAt).toLocaleString()}</div>
               </li>
             ))}
           </ul>
@@ -36,7 +36,7 @@ export default async function UsersPage() {
             {data.events.map((e: any) => (
               <li key={e.id} className="py-2 text-sm flex items-center justify-between">
                 <div className="capitalize">{e.type}</div>
-                <div className="text-neutral-400">{new Date(e.createdAt).toLocaleString()}</div>
+                <div className="text-[var(--color-muted)]">{new Date(e.createdAt).toLocaleString()}</div>
               </li>
             ))}
           </ul>

@@ -116,35 +116,35 @@ export default function EditProductPage() {
   return (
     <main className="min-h-screen p-8 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-serif">Edit Product</h1>
-        <Link className="underline" href="/products">Back</Link>
+        <h1 className="text-3xl font-serif bg-gradient-to-r from-[var(--brand-from)] to-[var(--brand-to)] bg-clip-text text-transparent">Edit Product</h1>
+        <Link className="text-[var(--color-muted)] hover:text-[var(--color-fg)] underline underline-offset-4" href="/products">Back</Link>
       </div>
 
       <form onSubmit={save} className="grid gap-3 max-w-xl">
         {product.coverImageId ? (
-          <Picture src={`/api/image-proxy?id=${product.coverImageId}` as any} alt="Current cover" className="max-h-40 rounded border" />
+          <Picture src={`/api/image-proxy?id=${product.coverImageId}` as any} alt="Current cover" className="max-h-40 rounded border border-[var(--color-border)]" />
         ) : null}
         <label className="grid gap-1">
           <span className="text-sm">Title</span>
-          <input className="border rounded px-2 py-1" value={title} onChange={(e) => setTitle(e.target.value)} required />
+          <input className="input" value={title} onChange={(e) => setTitle(e.target.value)} required />
         </label>
         <label className="grid gap-1">
           <span className="text-sm">Slug</span>
-          <input className="border rounded px-2 py-1" value={slug} onChange={(e) => setSlug(e.target.value)} required />
+          <input className="input" value={slug} onChange={(e) => setSlug(e.target.value)} required />
         </label>
         <div className="grid grid-cols-2 gap-3">
           <label className="grid gap-1">
             <span className="text-sm">Price</span>
-            <input type="number" step="0.01" className="border rounded px-2 py-1" value={price} onChange={(e) => setPrice(parseFloat(e.target.value))} required />
+            <input type="number" step="0.01" className="input" value={price} onChange={(e) => setPrice(parseFloat(e.target.value))} required />
           </label>
           <label className="grid gap-1">
             <span className="text-sm">Currency</span>
-            <input className="border rounded px-2 py-1" value={currency} onChange={(e) => setCurrency(e.target.value.toUpperCase())} maxLength={3} />
+            <input className="input" value={currency} onChange={(e) => setCurrency(e.target.value.toUpperCase())} maxLength={3} />
           </label>
         </div>
         <label className="grid gap-1">
           <span className="text-sm">Category</span>
-          <select className="border rounded px-2 py-1" value={categoryId} onChange={(e) => setCategoryId(e.target.value === "" ? "" : Number(e.target.value))}>
+          <select className="select" value={categoryId} onChange={(e) => setCategoryId(e.target.value === "" ? "" : Number(e.target.value))}>
             <option value="">(none)</option>
             {cats.map((c) => (
               <option key={c.id} value={c.id}>{c.name}</option>
@@ -153,7 +153,7 @@ export default function EditProductPage() {
         </label>
         <label className="grid gap-1">
           <span className="text-sm">Status</span>
-          <select className="border rounded px-2 py-1" value={status} onChange={(e) => setStatus(e.target.value as Product["status"]) }>
+          <select className="select" value={status} onChange={(e) => setStatus(e.target.value as Product["status"]) }>
             <option value="draft">draft</option>
             <option value="published">published</option>
           </select>
@@ -161,8 +161,8 @@ export default function EditProductPage() {
         <UploadField label="Replace Cover Image" type="image" onUploaded={(asset) => setNewCoverImageId(asset.id)} />
         <UploadField label="Replace Product Video" type="video" onUploaded={(asset) => setNewVideoAssetId(asset.id)} />
         <div className="flex gap-3">
-          <button type="submit" className="bg-black text-white px-4 py-2 rounded">Save</button>
-          <button type="button" onClick={remove} className="border border-red-600 text-red-600 px-4 py-2 rounded">Delete</button>
+          <button type="submit" className="btn">Save</button>
+          <button type="button" onClick={remove} className="btn btn-danger">Delete</button>
         </div>
       </form>
     </main>

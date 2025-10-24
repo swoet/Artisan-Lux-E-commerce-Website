@@ -7,12 +7,12 @@ export default function Logout() {
   };
 
   return (
-    <div className="min-h-screen grid place-items-center bg-neutral-950 text-white">
+    <div className="min-h-screen grid place-items-center bg-[var(--color-bg)] text-[var(--color-fg)]">
       <div className="text-center space-y-4">
-        <h1 className="text-2xl">Logging out...</h1>
+        <h1 className="text-2xl font-serif">Logging out...</h1>
         <button 
           onClick={handleLogout}
-          className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          className="btn btn-danger"
         >
           Clear Session & Logout
         </button>

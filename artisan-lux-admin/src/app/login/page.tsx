@@ -24,10 +24,10 @@ export default function AdminLogin() {
   };
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-neutral-950 text-neutral-100 grid place-items-center p-6 md:p-10">
-      <div aria-hidden className="pointer-events-none absolute -top-40 -right-40 h-96 w-96 rounded-full bg-gradient-to-tr from-white/10 to-white/0 blur-3xl" />
-      <div className="w-full max-w-5xl grid md:grid-cols-2 overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl">
-        <div className="hidden md:flex items-center justify-center p-10 bg-gradient-to-b from-white/10 to-transparent border-r border-white/10">
+    <main className="relative min-h-screen overflow-hidden bg-[var(--color-bg)] text-[var(--color-fg)] grid place-items-center p-6 md:p-10">
+      <div aria-hidden className="pointer-events-none absolute -top-40 -right-40 h-96 w-96 rounded-full bg-gradient-to-tr from-[var(--brand-from)]/20 to-transparent blur-3xl" />
+      <div className="w-full max-w-5xl grid md:grid-cols-2 overflow-hidden rounded-2xl border border-[var(--color-border)]/60 bg-[var(--color-card)]/90 backdrop-blur-xl shadow-2xl">
+        <div className="hidden md:flex items-center justify-center p-10 bg-gradient-to-b from-[var(--brand-from)]/10 to-transparent border-r border-[var(--color-border)]/60">
           <div className="text-center space-y-6">
             <AnimatedAvatar size={180} />
             <div className="space-y-2">
@@ -42,9 +42,9 @@ export default function AdminLogin() {
             <p className="text-sm text-neutral-300">Use your administrator credentials.</p>
           </div>
           <div className="space-y-2">
-            <label className="block text-sm text-neutral-200">Email</label>
+            <label className="block text-sm">Email</label>
             <input
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-white/40 focus:border-white/30 transition"
+              className="input px-4 py-3"
               type="email"
               required
               value={email}
@@ -52,9 +52,9 @@ export default function AdminLogin() {
             />
           </div>
           <div className="space-y-2">
-            <label className="block text-sm text-neutral-200">Password</label>
+            <label className="block text-sm">Password</label>
             <input
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-white/40 focus:border-white/30 transition"
+              className="input px-4 py-3"
               type="password"
               required
               value={password}
@@ -65,7 +65,7 @@ export default function AdminLogin() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-[var(--brand-from)] to-[var(--brand-to)] px-4 py-3 font-medium text-white ring-1 ring-white/10 transition hover:brightness-110 disabled:opacity-60"
+            className="btn w-full px-4 py-3"
           >
             {loading ? "Signing in..." : "Sign in"}
           </button>

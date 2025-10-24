@@ -82,8 +82,8 @@ export function InventoryManager() {
     <div className="space-y-6">
       {/* Low Stock Alerts */}
       {lowStockItems.length > 0 && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <h3 className="font-semibold text-yellow-900 mb-2">
+        <div className="card p-4">
+          <h3 className="font-semibold mb-2 text-[var(--color-fg)]">
             ⚠️ Low Stock Alerts ({lowStockItems.length})
           </h3>
           <div className="space-y-2">
@@ -93,7 +93,7 @@ export function InventoryManager() {
                 className="flex items-center justify-between text-sm"
               >
                 <span className="font-medium">{item.productTitle}</span>
-                <span className="text-yellow-700">
+                <span className="text-[var(--color-muted)]">
                   {item.quantityInStock} in stock (threshold: {item.lowStockThreshold})
                 </span>
               </div>
@@ -103,7 +103,7 @@ export function InventoryManager() {
       )}
 
       {/* Update Inventory Form */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
+      <div className="card p-6">
         <h3 className="font-serif text-xl font-semibold mb-4">
           Update Inventory
         </h3>
@@ -113,11 +113,11 @@ export function InventoryManager() {
             <select
               value={selectedProduct || ""}
               onChange={(e) => setSelectedProduct(Number(e.target.value))}
-              className="w-full border border-neutral-300 rounded-md px-3 py-2"
+              className="select"
             >
               <option value="">Select a product</option>
               {inventory.map((item) => (
-                <option key={item.productId} value={item.productId}>
+                <option key={item.productId} value={item.productId} className="bg-[var(--color-card)] text-[var(--color-fg)]">
                   {item.productTitle} ({item.quantityInStock} in stock)
                 </option>
               ))}
@@ -132,7 +132,7 @@ export function InventoryManager() {
               type="number"
               value={quantityChange}
               onChange={(e) => setQuantityChange(Number(e.target.value))}
-              className="w-full border border-neutral-300 rounded-md px-3 py-2"
+              className="input"
               placeholder="+10 or -5"
             />
           </div>
@@ -142,7 +142,7 @@ export function InventoryManager() {
             <select
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              className="w-full border border-neutral-300 rounded-md px-3 py-2"
+              className="select"
             >
               <option value="restock">Restock</option>
               <option value="sale">Sale</option>
@@ -158,7 +158,7 @@ export function InventoryManager() {
               type="text"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full border border-neutral-300 rounded-md px-3 py-2"
+              className="input"
               placeholder="Optional notes"
             />
           </div>
@@ -166,37 +166,37 @@ export function InventoryManager() {
 
         <button
           onClick={handleUpdateInventory}
-          className="mt-4 bg-neutral-900 text-white px-6 py-2 rounded-md hover:bg-neutral-800"
+          className="btn mt-4"
         >
           Update Inventory
         </button>
       </div>
 
       {/* Inventory Table */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-neutral-50 border-b border-neutral-200">
+      <div className="card overflow-hidden">
+        <table className="table">
+          <thead>
             <tr>
-              <th className="text-left px-6 py-3 text-sm font-medium text-neutral-700">
+              <th className="text-left px-6 py-3 text-sm font-medium">
                 Product
               </th>
-              <th className="text-center px-6 py-3 text-sm font-medium text-neutral-700">
+              <th className="text-center px-6 py-3 text-sm font-medium">
                 In Stock
               </th>
-              <th className="text-center px-6 py-3 text-sm font-medium text-neutral-700">
+              <th className="text-center px-6 py-3 text-sm font-medium">
                 Low Stock Threshold
               </th>
-              <th className="text-center px-6 py-3 text-sm font-medium text-neutral-700">
+              <th className="text-center px-6 py-3 text-sm font-medium">
                 Status
               </th>
-              <th className="text-left px-6 py-3 text-sm font-medium text-neutral-700">
+              <th className="text-left px-6 py-3 text-sm font-medium">
                 Last Restocked
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-neutral-200">
+          <tbody>
             {inventory.map((item) => (
-              <tr key={item.id} className="hover:bg-neutral-50">
+              <tr key={item.id} className="hover:bg-[var(--color-fg)]/5">
                 <td className="px-6 py-4">{item.productTitle}</td>
                 <td className="px-6 py-4 text-center font-medium">
                   {item.quantityInStock}
@@ -206,20 +206,14 @@ export function InventoryManager() {
                 </td>
                 <td className="px-6 py-4 text-center">
                   {item.isLowStock ? (
-                    <span className="inline-block bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-medium">
-                      Low Stock
-                    </span>
+                    <span className="badge badge-warning">Low Stock</span>
                   ) : item.quantityInStock === 0 ? (
-                    <span className="inline-block bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium">
-                      Out of Stock
-                    </span>
+                    <span className="badge badge-error">Out of Stock</span>
                   ) : (
-                    <span className="inline-block bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">
-                      In Stock
-                    </span>
+                    <span className="badge badge-success">In Stock</span>
                   )}
                 </td>
-                <td className="px-6 py-4 text-sm text-neutral-600">
+                <td className="px-6 py-4 text-sm text-[var(--color-muted)]">
                   {item.lastRestockedAt
                     ? new Date(item.lastRestockedAt).toLocaleDateString()
                     : "Never"}

@@ -128,23 +128,23 @@ export default function EditCategoryPage() {
   return (
     <main className="min-h-screen p-8 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-serif">Edit Category</h1>
-        <Link className="underline" href="/categories">Back</Link>
+        <h1 className="text-3xl font-serif bg-gradient-to-r from-[var(--brand-from)] to-[var(--brand-to)] bg-clip-text text-transparent">Edit Category</h1>
+        <Link className="text-neutral-300 hover:text-white underline underline-offset-4" href="/categories">Back</Link>
       </div>
 
       <form onSubmit={save} className="grid gap-3 max-w-xl">
         <label className="grid gap-1">
           <span className="text-sm">Name</span>
-          <input className="border rounded px-2 py-1" value={name} onChange={(e) => setName(e.target.value)} required />
+          <input className="input" value={name} onChange={(e) => setName(e.target.value)} required />
         </label>
         <label className="grid gap-1">
           <span className="text-sm">Slug</span>
-          <input className="border rounded px-2 py-1" value={slug} onChange={(e) => setSlug(e.target.value)} required />
+          <input className="input" value={slug} onChange={(e) => setSlug(e.target.value)} required />
         </label>
         <div className="grid grid-cols-2 gap-3">
           <label className="grid gap-1">
             <span className="text-sm">Category</span>
-            <select className="border rounded px-2 py-1" value={rootKey} onChange={(e)=>{setRootKey(e.target.value); setChildKey("");}}>
+            <select className="select" value={rootKey} onChange={(e)=>{setRootKey(e.target.value); setChildKey("");}}>
               <option value="">(unchanged)</option>
               {TAXONOMY.map((t)=> (
                 <option key={t.key} value={t.key}>{t.name}</option>
@@ -153,7 +153,7 @@ export default function EditCategoryPage() {
           </label>
           <label className="grid gap-1">
             <span className="text-sm">Subcategory</span>
-            <select className="border rounded px-2 py-1" value={childKey} onChange={(e)=>setChildKey(e.target.value)}>
+            <select className="select" value={childKey} onChange={(e)=>setChildKey(e.target.value)}>
               <option value="">(none)</option>
               {TAXONOMY.find(t=>t.key===rootKey)?.children?.map(c => (
                 <option key={c.key} value={c.key}>{c.name}</option>
@@ -163,21 +163,21 @@ export default function EditCategoryPage() {
         </div>
         <label className="grid gap-1">
           <span className="text-sm">Description</span>
-          <textarea className="border rounded px-2 py-1" value={description} onChange={(e) => setDescription(e.target.value)} />
+          <textarea className="textarea" value={description} onChange={(e) => setDescription(e.target.value)} />
         </label>
         <div className="grid grid-cols-2 gap-3">
           <label className="grid gap-1">
             <span className="text-sm">Min Price (optional)</span>
-            <input type="number" step="0.01" className="border rounded px-2 py-1" value={minPrice} onChange={(e)=>setMinPrice(e.target.value)} />
+            <input type="number" step="0.01" className="input" value={minPrice} onChange={(e)=>setMinPrice(e.target.value)} />
           </label>
           <label className="grid gap-1">
             <span className="text-sm">Max Price (optional)</span>
-            <input type="number" step="0.01" className="border rounded px-2 py-1" value={maxPrice} onChange={(e)=>setMaxPrice(e.target.value)} />
+            <input type="number" step="0.01" className="input" value={maxPrice} onChange={(e)=>setMaxPrice(e.target.value)} />
           </label>
         </div>
         <label className="grid gap-1">
           <span className="text-sm">Status</span>
-          <select className="border rounded px-2 py-1" value={status} onChange={(e) => setStatus(e.target.value as Category["status"]) }>
+          <select className="select" value={status} onChange={(e) => setStatus(e.target.value as Category["status"]) }>
             <option value="draft">draft</option>
             <option value="published">published</option>
           </select>
@@ -197,8 +197,8 @@ export default function EditCategoryPage() {
         </div>
 
         <div className="flex gap-3 mt-4">
-          <button type="submit" className="bg-black text-white px-4 py-2 rounded">Save</button>
-          <button type="button" onClick={remove} className="border border-red-600 text-red-600 px-4 py-2 rounded">Delete</button>
+          <button type="submit" className="btn">Save</button>
+          <button type="button" onClick={remove} className="btn btn-danger">Delete</button>
         </div>
       </form>
     </main>

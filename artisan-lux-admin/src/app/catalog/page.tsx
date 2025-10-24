@@ -148,18 +148,18 @@ export default function CatalogPage() {
           <div className="grid grid-cols-2 gap-3">
             <label className="grid gap-1">
               <span className="text-sm">Category</span>
-              <select className="rounded px-2 py-1 bg-transparent border border-[var(--color-border)] text-[var(--color-fg)]" value={rootKey} onChange={(e)=>{setRootKey(e.target.value); setChildKey("");}}>
+              <select className="select" value={rootKey} onChange={(e)=>{setRootKey(e.target.value); setChildKey("");}}>
                 {TAXONOMY.map((t)=> (
-                  <option key={t.key} value={t.key} className="bg-[var(--color-card)] text-[var(--color-fg)]">{t.name}</option>
+                  <option key={t.key} value={t.key}>{t.name}</option>
                 ))}
               </select>
             </label>
             <label className="grid gap-1">
               <span className="text-sm">Subcategory</span>
-              <select className="rounded px-2 py-1 bg-transparent border border-[var(--color-border)] text-[var(--color-fg)]" value={childKey} onChange={(e)=>setChildKey(e.target.value)}>
-                <option value="" className="bg-[var(--color-card)] text-[var(--color-fg)]">(none)</option>
+              <select className="select" value={childKey} onChange={(e)=>setChildKey(e.target.value)}>
+                <option value="" >(none)</option>
                 {TAXONOMY.find(t=>t.key===rootKey)?.children?.map(c => (
-                  <option key={c.key} value={c.key} className="bg-[var(--color-card)] text-[var(--color-fg)]">{c.name}</option>
+                  <option key={c.key} value={c.key}>{c.name}</option>
                 ))}
               </select>
             </label>
@@ -167,22 +167,22 @@ export default function CatalogPage() {
           
           <label className="grid gap-1">
             <span className="text-sm">Title</span>
-            <input className="rounded px-2 py-1 bg-transparent border border-[var(--color-border)]" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Men's Leather Jacket" />
+            <input className="input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Men's Leather Jacket" />
           </label>
           
           <label className="grid gap-1">
             <span className="text-sm">Slug (optional)</span>
-            <input className="rounded px-2 py-1 bg-transparent border border-[var(--color-border)] placeholder:text-neutral-400" value={catSlug} onChange={(e) => setCatSlug(e.target.value)} placeholder="auto from name if blank" />
+            <input className="input" value={catSlug} onChange={(e) => setCatSlug(e.target.value)} placeholder="auto from name if blank" />
           </label>
           
           <label className="grid gap-1">
             <span className="text-sm">Description (optional)</span>
-            <textarea className="rounded px-2 py-1 bg-transparent border border-[var(--color-border)]" value={catDescription} onChange={(e) => setCatDescription(e.target.value)} />
+            <textarea className="textarea" value={catDescription} onChange={(e) => setCatDescription(e.target.value)} />
           </label>
           
           <label className="grid gap-1">
             <span className="text-sm">Rich Description (optional)</span>
-            <textarea className="rounded px-2 py-1 bg-transparent border border-[var(--color-border)]" rows={3} value={catDescriptionRich} onChange={(e) => setCatDescriptionRich(e.target.value)} placeholder="HTML or rich text description" />
+            <textarea className="textarea" rows={3} value={catDescriptionRich} onChange={(e) => setCatDescriptionRich(e.target.value)} placeholder="HTML or rich text description" />
           </label>
 
           <div className="border-t pt-4">
@@ -191,22 +191,22 @@ export default function CatalogPage() {
             <div className="grid grid-cols-2 gap-3">
               <label className="grid gap-1">
                 <span className="text-sm">Price</span>
-                <input type="number" step="0.01" className="rounded px-2 py-1 bg-transparent border border-[var(--color-border)]" value={priceDecimal || ""} onChange={(e) => setPriceDecimal(e.target.value ? parseFloat(e.target.value) : null)} />
+                <input type="number" step="0.01" className="input" value={priceDecimal || ""} onChange={(e) => setPriceDecimal(e.target.value ? parseFloat(e.target.value) : null)} />
               </label>
               <label className="grid gap-1">
                 <span className="text-sm">Currency</span>
-                <input className="rounded px-2 py-1 bg-transparent border border-[var(--color-border)]" value={currency} onChange={(e) => setCurrency(e.target.value.toUpperCase())} maxLength={3} />
+                <input className="input" value={currency} onChange={(e) => setCurrency(e.target.value.toUpperCase())} maxLength={3} />
               </label>
             </div>
             
             <label className="grid gap-1">
               <span className="text-sm">Materials (comma-separated)</span>
-              <input className="rounded px-2 py-1 bg-transparent border border-[var(--color-border)]" value={materials} onChange={(e) => setMaterials(e.target.value)} placeholder="e.g. Leather, Cotton, Silk" />
+              <input className="input" value={materials} onChange={(e) => setMaterials(e.target.value)} placeholder="e.g. Leather, Cotton, Silk" />
             </label>
             
             <label className="grid gap-1">
               <span className="text-sm">Tags (comma-separated)</span>
-              <input className="rounded px-2 py-1 bg-transparent border border-[var(--color-border)]" value={tags} onChange={(e) => setTags(e.target.value)} placeholder="e.g. luxury, handmade, premium" />
+              <input className="input" value={tags} onChange={(e) => setTags(e.target.value)} placeholder="e.g. luxury, handmade, premium" />
             </label>
             
             <label className="grid gap-1">
@@ -231,16 +231,16 @@ export default function CatalogPage() {
             <div className="grid grid-cols-2 gap-3">
               <label className="grid gap-1">
                 <span className="text-sm">Min Price</span>
-                <input type="number" step="0.01" className="rounded px-2 py-1 bg-transparent border border-[var(--color-border)]" value={minPriceStr} onChange={(e)=>setMinPriceStr(e.target.value)} />
+                <input type="number" step="0.01" className="input" value={minPriceStr} onChange={(e)=>setMinPriceStr(e.target.value)} />
               </label>
               <label className="grid gap-1">
                 <span className="text-sm">Max Price</span>
-                <input type="number" step="0.01" className="rounded px-2 py-1 bg-transparent border border-[var(--color-border)]" value={maxPriceStr} onChange={(e)=>setMaxPriceStr(e.target.value)} />
+                <input type="number" step="0.01" className="input" value={maxPriceStr} onChange={(e)=>setMaxPriceStr(e.target.value)} />
               </label>
             </div>
           </div>
 
-          <button type="submit" className="rounded px-4 py-2 w-fit text-white bg-gradient-to-r from-[var(--brand-from)] to-[var(--brand-to)]">Create</button>
+          <button type="submit" className="btn w-fit">Create</button>
         </form>
       </section>
 
@@ -254,32 +254,32 @@ export default function CatalogPage() {
           <p className="text-neutral-400">No items yet.</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-[800px] w-full text-left border border-[var(--color-border)]">
-              <thead className="bg-white/5">
+            <table className="table min-w-[800px] text-left">
+              <thead>
                 <tr>
-                  <th className="p-2 border border-[var(--color-border)]">ID</th>
-                  <th className="p-2 border border-[var(--color-border)]">Name</th>
-                  <th className="p-2 border border-[var(--color-border)]">Slug</th>
-                  <th className="p-2 border border-[var(--color-border)]">Price</th>
-                  <th className="p-2 border border-[var(--color-border)]">Featured</th>
-                  <th className="p-2 border border-[var(--color-border)]">Status</th>
-                  <th className="p-2 border border-[var(--color-border)]">Actions</th>
+                  <th className="p-2">ID</th>
+                  <th className="p-2">Name</th>
+                  <th className="p-2">Slug</th>
+                  <th className="p-2">Price</th>
+                  <th className="p-2">Featured</th>
+                  <th className="p-2">Status</th>
+                  <th className="p-2">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {categories.map((c) => (
-                  <tr key={c.id} className="odd:bg-white/[0.02]">
-                    <td className="p-2 border border-[var(--color-border)]">{c.id}</td>
-                    <td className="p-2 border border-[var(--color-border)]">{c.name}</td>
-                    <td className="p-2 border border-[var(--color-border)] font-mono">{c.slug}</td>
-                    <td className="p-2 border border-[var(--color-border)]">
+                  <tr key={c.id}>
+                    <td className="p-2">{c.id}</td>
+                    <td className="p-2">{c.name}</td>
+                    <td className="p-2 font-mono">{c.slug}</td>
+                    <td className="p-2">
                       {c.priceDecimal ? `${Number(c.priceDecimal).toFixed(2)} ${c.currency || 'USD'}` : '—'}
                     </td>
-                    <td className="p-2 border border-[var(--color-border)]">
+                    <td className="p-2">
                       {c.isFeatured ? '⭐' : '—'}
                     </td>
-                    <td className="p-2 border border-[var(--color-border)]">{c.status}</td>
-                    <td className="p-2 border border-[var(--color-border)]">
+                    <td className="p-2">{c.status}</td>
+                    <td className="p-2">
                       <Link className="underline" href={`/categories/${c.id}`}>Edit</Link>
                     </td>
                   </tr>

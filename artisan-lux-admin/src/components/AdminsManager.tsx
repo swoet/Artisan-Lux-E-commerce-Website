@@ -50,20 +50,20 @@ export default function AdminsManager(){
         <h2 className="font-semibold mb-2">Create Admin</h2>
         <div>
           <label className="block text-sm">Email</label>
-          <input className="w-full rounded px-3 py-2 bg-transparent border border-[var(--color-border)]" type="email" required value={email} onChange={e=>setEmail(e.target.value)} />
+          <input className="input" type="email" required value={email} onChange={e=>setEmail(e.target.value)} />
         </div>
         <div>
           <label className="block text-sm">Password</label>
-          <input className="w-full rounded px-3 py-2 bg-transparent border border-[var(--color-border)]" type="password" required value={password} onChange={e=>setPassword(e.target.value)} />
+          <input className="input" type="password" required value={password} onChange={e=>setPassword(e.target.value)} />
         </div>
         <div>
           <label className="block text-sm">Role</label>
-          <select className="w-full rounded px-3 py-2 bg-transparent border border-[var(--color-border)]" value={role} onChange={e=>setRole(e.target.value)}>
+          <select className="select" value={role} onChange={e=>setRole(e.target.value)}>
             <option value="admin" className="bg-[var(--color-card)] text-[var(--color-fg)]">Admin</option>
             <option value="superadmin" className="bg-[var(--color-card)] text-[var(--color-fg)]">Super Admin</option>
           </select>
         </div>
-        <button className="rounded px-4 py-2 text-white bg-gradient-to-r from-[var(--brand-from)] to-[var(--brand-to)]" type="submit">Create</button>
+        <button className="btn" type="submit">Create</button>
         {error? <div className="text-red-400 text-sm mt-2">{error}</div>:null}
       </form>
     </div>
