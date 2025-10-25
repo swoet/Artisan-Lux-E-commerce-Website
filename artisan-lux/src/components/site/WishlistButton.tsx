@@ -4,21 +4,24 @@ import { useState, useEffect } from "react";
 
 type WishlistButtonProps = {
   productId: number;
+  productSlug?: string;
 };
 
-export function WishlistButton({ productId }: WishlistButtonProps) {
+export function WishlistButton({ productId, productSlug }: WishlistButtonProps) {
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     checkWishlist();
-  }, [productId]);
+  }, [productId, productSlug]);
 
   const checkWishlist = async () => {
     try {
       const response = await fetch("/api/wishlist");
       const data = await response.json();
-      const exists = data.items?.some((item: { productId: number }) => item.productId === productId);
+      const exists = data.items?.some((item: { productId: number; slug?: string }) =>
+        productSlug ? item.slug === productSlug : item.productId === productId
+      );
       setIsInWishlist(exists);
     } catch (error) {
       console.error("Check wishlist error:", error);
@@ -32,7 +35,9 @@ export function WishlistButton({ productId }: WishlistButtonProps) {
         // Find item and remove
         const response = await fetch("/api/wishlist");
         const data = await response.json();
-        const item = data.items?.find((item: { id: number; productId: number }) => item.productId === productId);
+        const item = data.items?.find((item: { id: number; productId: number; slug?: string }) =>
+          productSlug ? item.slug === productSlug : item.productId === productId
+        );
         
         if (item) {
           await fetch(`/api/wishlist?itemId=${item.id}`, {
@@ -45,7 +50,7 @@ export function WishlistButton({ productId }: WishlistButtonProps) {
         await fetch("/api/wishlist", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ productId }),
+          body: JSON.stringify(productSlug ? { productSlug } : { productId }),
         });
         setIsInWishlist(true);
       }

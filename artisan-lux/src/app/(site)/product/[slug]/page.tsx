@@ -100,7 +100,7 @@ export default async function ProductPage(props: unknown) {
         <div className="space-y-4">
           <ProductGallery title={p.title} cover={p.coverImageUrl} gallery={p.gallery} />
           <div>
-            <WishlistButton productId={p.id} />
+            <WishlistButton productId={p.id} productSlug={p.slug} />
           </div>
         </div>
 

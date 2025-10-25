@@ -53,7 +53,16 @@ export async function GET(request: NextRequest) {
 // Add to wishlist
 export async function POST(request: NextRequest) {
   try {
-    const { productId } = await request.json();
+    const body = await request.json();
+    let productId: number | null = typeof body.productId === "number" ? body.productId : null;
+    const productSlug: string | null = typeof body.productSlug === "string" ? body.productSlug : null;
+
+    // Map slug to category id if provided
+    if (!productId && productSlug) {
+      const rows = await db.select({ id: categories.id }).from(categories).where(eq(categories.slug, productSlug)).limit(1);
+      productId = rows[0]?.id ?? null;
+    }
+    if (!productId) return NextResponse.json({ error: "productId or productSlug required" }, { status: 400 });
     const cookieStore = await cookies();
     let sessionToken = cookieStore.get("wishlist_session")?.value;
 
@@ -100,10 +109,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Add to wishlist
-    await db.insert(wishlistItems).values({
-      wishlistId: wishlist[0].id,
-      productId,
-    });
+    await db.insert(wishlistItems).values({ wishlistId: wishlist[0].id, productId });
 
     return NextResponse.json({ message: "Added to wishlist" });
   } catch (error) {
