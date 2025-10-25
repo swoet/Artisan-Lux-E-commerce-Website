@@ -14,19 +14,30 @@ export type CartItemView = {
 const asNumeric = (n: string | number) => String(n);
 
 export async function getOrCreateCartByToken(sessionToken: string, email?: string | null) {
-  const existing = await db.select().from(carts).where(eq(carts.sessionToken, sessionToken)).limit(1);
-  if (existing[0]) {
-    // attach email if provided and not set
-    if (email && !existing[0].email) {
-      await db.update(carts).set({ email }).where(eq(carts.id, existing[0].id));
+  try {
+    const existing = await db.select().from(carts).where(eq(carts.sessionToken, sessionToken)).limit(1);
+    if (existing[0]) {
+      // attach email if provided and not set
+      if (email && !existing[0].email) {
+        await db.update(carts).set({ email }).where(eq(carts.id, existing[0].id));
+      }
+      return existing[0];
     }
-    return existing[0];
+    const rows = await db
+      .insert(carts)
+      .values({ sessionToken, email: email ?? null })
+      .returning();
+    return rows[0];
+  } catch (error: any) {
+    console.error('[getOrCreateCartByToken] Database error:', {
+      message: error.message,
+      code: error.code,
+      detail: error.detail,
+      hint: error.hint,
+      stack: error.stack?.split('\n').slice(0, 3)
+    });
+    throw new Error(`Failed query: ${error.message}\nparams: ${sessionToken},${email ?? 'null'}`);
   }
-  const rows = await db
-    .insert(carts)
-    .values({ sessionToken, email: email ?? null })
-    .returning();
-  return rows[0];
 }
 
 export async function getCartWithItems(sessionToken: string) {
