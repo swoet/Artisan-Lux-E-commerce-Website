@@ -2,6 +2,7 @@ import Link from "next/link";
 import CategoryGrid from "@/components/site/CategoryGrid";
 import Testimonials from "@/components/site/Testimonials";
 import UserMenu from "@/components/site/UserMenu";
+import CartIcon from "@/components/site/CartIcon";
 
 // Disable static optimization
 export const revalidate = 0;
@@ -16,7 +17,10 @@ export default function Home() {
             Artisan Lux
           </h1>
         </Link>
-        <UserMenu />
+        <div className="flex items-center gap-4">
+          <CartIcon />
+          <UserMenu />
+        </div>
       </nav>
 
       {/* Hero Section */}
