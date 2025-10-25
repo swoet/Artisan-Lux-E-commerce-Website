@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { carts, cartItems, products, orders, orderItems, payments, customers } from "@/db/schema";
+import { carts, cartItems, products, categories, orders, orderItems, payments, customers } from "@/db/schema";
 import { and, asc, desc, eq } from "drizzle-orm";
 
 export type CartItemView = {
@@ -31,27 +31,71 @@ export async function getOrCreateCartByToken(sessionToken: string, email?: strin
 
 export async function getCartWithItems(sessionToken: string) {
   const cart = await getOrCreateCartByToken(sessionToken);
-  const items = await db
+  
+  // Get cart items with product details from both products and categories tables
+  const rawItems = await db
     .select({
       productId: cartItems.productId,
-      slug: products.slug,
-      title: products.title,
       quantity: cartItems.quantity,
       unitPrice: cartItems.unitPrice,
       currency: cartItems.currency,
     })
     .from(cartItems)
-    .leftJoin(products, eq(products.id, cartItems.productId))
-    .where(eq(cartItems.cartId, cart.id))
-    .orderBy(asc(products.title));
+    .where(eq(cartItems.cartId, cart.id));
+
+  // Enrich with product/category details
+  const items: CartItemView[] = [];
+  for (const item of rawItems) {
+    // Try products table first
+    let productData = (await db.select().from(products).where(eq(products.id, item.productId)).limit(1))[0];
+    
+    if (!productData) {
+      // Try categories table (categories are used as products)
+      const categoryData = (await db.select().from(categories).where(eq(categories.id, item.productId)).limit(1))[0];
+      if (categoryData) {
+        productData = {
+          slug: categoryData.slug,
+          title: categoryData.name,
+        } as any;
+      }
+    }
+    
+    if (productData) {
+      items.push({
+        productId: item.productId,
+        slug: productData.slug,
+        title: productData.title,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        currency: item.currency,
+      });
+    }
+  }
 
   return { cart, items } as const;
 }
 
 export async function addItemByProductSlug(sessionToken: string, slug: string, quantity: number = 1) {
   const { cart } = await getCartWithItems(sessionToken);
-  const product = (await db.select().from(products).where(eq(products.slug, slug)).limit(1))[0];
-  if (!product) throw new Error("Product not found");
+  
+  // Try to find in products table first, then categories table (categories are used as products)
+  let product = (await db.select().from(products).where(eq(products.slug, slug)).limit(1))[0];
+  
+  if (!product) {
+    // Look in categories table (categories with priceDecimal are sellable products)
+    const category = (await db.select().from(categories).where(eq(categories.slug, slug)).limit(1))[0];
+    if (!category || !category.priceDecimal) {
+      throw new Error("Product not found");
+    }
+    // Map category to product-like structure
+    product = {
+      id: category.id,
+      slug: category.slug,
+      title: category.name,
+      priceDecimal: category.priceDecimal,
+      currency: category.currency,
+    } as any;
+  }
 
   const existing = await db
     .select()
