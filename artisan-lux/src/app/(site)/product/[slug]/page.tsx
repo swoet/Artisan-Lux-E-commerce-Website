@@ -4,6 +4,7 @@ import ProductGallery from "@/components/site/ProductGallery";
 import { WishlistButton } from "@/components/site/WishlistButton";
 import ProductActions from "@/components/site/ProductActions";
 import CartIcon from "@/components/site/CartIcon";
+import PendingOrdersIcon from "@/components/site/PendingOrdersIcon";
 
 export const revalidate = 300; // 5 minutes ISR, with on-demand revalidation from admin
 
@@ -90,6 +91,7 @@ export default async function ProductPage(props: unknown) {
         <Link href="/" className="text-2xl font-serif tracking-wide bg-gradient-to-r from-[#b87333] to-[#cd7f32] bg-clip-text text-transparent">Artisan Lux</Link>
         <div className="flex gap-6 items-center text-sm">
           <Link href="/categories" className="hover:text-[#cd7f32] transition-colors">Categories</Link>
+          <PendingOrdersIcon />
           <CartIcon />
         </div>
       </nav>

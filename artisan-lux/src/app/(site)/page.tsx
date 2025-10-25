@@ -3,6 +3,7 @@ import CategoryGrid from "@/components/site/CategoryGrid";
 import Testimonials from "@/components/site/Testimonials";
 import UserMenu from "@/components/site/UserMenu";
 import CartIcon from "@/components/site/CartIcon";
+import PendingOrdersIcon from "@/components/site/PendingOrdersIcon";
 
 // Disable static optimization
 export const revalidate = 0;
@@ -18,6 +19,7 @@ export default function Home() {
           </h1>
         </Link>
         <div className="flex items-center gap-4">
+          <PendingOrdersIcon />
           <CartIcon />
           <UserMenu />
         </div>
