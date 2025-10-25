@@ -4,7 +4,7 @@ import LiveCatalogRefresh from "@/components/site/LiveCatalogRefresh.server";
 import { Picture } from "@/components/site/Picture";
 import { TAXONOMY_FALLBACK, type TaxonomyNode as TaxonomyNodeFallback } from "@/lib/taxonomy";
 
-export const revalidate = 60;
+export const revalidate = 0;
 
 type CategoryRecord = { id: number; name: string; description: string | null };
 type ProductRecord = {
@@ -28,7 +28,7 @@ type AdminItem = { id: number; name: string; slug: string; taxonomyKey?: string 
 async function fetchCatalog(): Promise<{ taxonomy: TaxonomyNode[]; items: AdminItem[]; categories: unknown[] }> {
   try {
     // Use relative path so it works on any domain without env config
-    const res = await fetch(`/api/catalog-proxy`, { next: { tags: ["catalog"], revalidate: 300 } });
+    const res = await fetch(`/api/catalog-proxy`, { cache: "no-store" });
     if (!res.ok) return { taxonomy: TAXONOMY_FALLBACK as unknown as TaxonomyNode[], items: [], categories: [] };
     const data = await res.json();
     if (!data?.taxonomy?.length) data.taxonomy = TAXONOMY_FALLBACK as unknown as TaxonomyNodeFallback[];
