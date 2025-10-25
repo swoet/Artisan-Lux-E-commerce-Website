@@ -43,6 +43,7 @@ export async function POST(req: NextRequest) {
     ensureCookie(res, token);
     return res;
   } catch (e) {
+    console.error("[Cart POST] Error adding item:", e);
     return NextResponse.json({ error: e instanceof Error ? e.message : "Unable to add item" }, { status: 400 });
   }
 }
