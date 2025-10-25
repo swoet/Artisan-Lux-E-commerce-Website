@@ -190,6 +190,15 @@ export const payments = pgTable("payments", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+// Payment proofs table (already created in main site DB)
+export const paymentProofs = pgTable("payment_proofs", {
+  id: serial("id").primaryKey(),
+  orderId: integer("order_id").references(() => orders.id).notNull(),
+  url: text("url").notNull(),
+  paymentMethod: varchar("payment_method", { length: 40 }),
+  uploadedAt: timestamp("uploaded_at").defaultNow().notNull(),
+});
+
 // Products table (for inventory management)
 export const products = pgTable("products", {
   id: serial("id").primaryKey(),

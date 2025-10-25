@@ -24,6 +24,7 @@ export default function RootLayout({
               <Link href="/" className="hover:text-[var(--brand-to)] transition-colors">Dashboard</Link>
               <Link href="/catalog" className="hover:text-[var(--brand-to)] transition-colors">Catalog</Link>
               <Link href="/users" className="hover:text-[var(--brand-to)] transition-colors">Users</Link>
+              <Link href="/payments" className="hover:text-[var(--brand-to)] transition-colors">Payments</Link>
               <Link href="/analytics" className="hover:text-[var(--brand-to)] transition-colors">Analytics</Link>
               <Link href="/admins" className="hover:text-[var(--brand-to)] transition-colors">Admins</Link>
               <a href="http://localhost:3000" target="_blank" rel="noreferrer" className="hover:text-[var(--brand-to)] transition-colors">View Site</a>
