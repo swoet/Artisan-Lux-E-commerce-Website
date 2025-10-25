@@ -84,8 +84,11 @@ export async function addItemByProductSlug(sessionToken: string, slug: string, q
   if (!product) {
     // Look in categories table (categories with priceDecimal are sellable products)
     const category = (await db.select().from(categories).where(eq(categories.slug, slug)).limit(1))[0];
-    if (!category || !category.priceDecimal) {
-      throw new Error("Product not found");
+    if (!category) {
+      throw new Error(`Product not found with slug: ${slug}`);
+    }
+    if (!category.priceDecimal) {
+      throw new Error(`Product "${category.name}" does not have a price set`);
     }
     // Map category to product-like structure
     product = {
