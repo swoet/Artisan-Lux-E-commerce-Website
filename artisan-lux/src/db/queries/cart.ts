@@ -42,8 +42,7 @@ export async function getOrCreateCartByToken(sessionToken: string, email?: strin
 
 export async function getCartWithItems(sessionToken: string) {
   const cart = await getOrCreateCartByToken(sessionToken);
-  
-  // Get cart items with product details from both products and categories tables
+
   const rawItems = await db
     .select({
       productId: cartItems.productId,
@@ -54,28 +53,36 @@ export async function getCartWithItems(sessionToken: string) {
     .from(cartItems)
     .where(eq(cartItems.cartId, cart.id));
 
-  // Enrich with product/category details
   const items: CartItemView[] = [];
   for (const item of rawItems) {
-    // Try products table first
-    let productData = (await db.select().from(products).where(eq(products.id, item.productId)).limit(1))[0];
-    
-    if (!productData) {
-      // Try categories table (categories are used as products)
-      const categoryData = (await db.select().from(categories).where(eq(categories.id, item.productId)).limit(1))[0];
-      if (categoryData) {
-        productData = {
-          slug: categoryData.slug,
-          title: categoryData.name,
-        } as any;
-      }
-    }
-    
-    if (productData) {
+    // Categories-first enrichment
+    const cat = (await db
+      .select({ slug: categories.slug, title: categories.name })
+      .from(categories)
+      .where(eq(categories.id, item.productId))
+      .limit(1))[0];
+    if (cat) {
       items.push({
         productId: item.productId,
-        slug: productData.slug,
-        title: productData.title,
+        slug: cat.slug,
+        title: cat.title,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        currency: item.currency,
+      });
+      continue;
+    }
+    // Fallback to products (for legacy rows)
+    const prod = (await db
+      .select({ slug: products.slug, title: products.title })
+      .from(products)
+      .where(eq(products.id, item.productId))
+      .limit(1))[0];
+    if (prod) {
+      items.push({
+        productId: item.productId,
+        slug: prod.slug,
+        title: prod.title,
         quantity: item.quantity,
         unitPrice: item.unitPrice,
         currency: item.currency,
@@ -88,28 +95,21 @@ export async function getCartWithItems(sessionToken: string) {
 
 export async function addItemByProductSlug(sessionToken: string, slug: string, quantity: number = 1) {
   const { cart } = await getCartWithItems(sessionToken);
-  
-  // Try to find in products table first, then categories table (categories are used as products)
-  let product = (await db.select().from(products).where(eq(products.slug, slug)).limit(1))[0];
-  
-  if (!product) {
-    // Look in categories table (categories with priceDecimal are sellable products)
-    const category = (await db.select().from(categories).where(eq(categories.slug, slug)).limit(1))[0];
-    if (!category) {
-      throw new Error(`Product not found with slug: ${slug}`);
-    }
-    if (!category.priceDecimal) {
-      throw new Error(`Product "${category.name}" does not have a price set`);
-    }
-    // Map category to product-like structure
-    product = {
-      id: category.id,
-      slug: category.slug,
-      title: category.name,
-      priceDecimal: category.priceDecimal,
-      currency: category.currency,
-    } as any;
+
+  // Categories-first lookup (primary data source)
+  const category = (await db
+    .select({ id: categories.id, slug: categories.slug, name: categories.name, priceDecimal: categories.priceDecimal, currency: categories.currency })
+    .from(categories)
+    .where(eq(categories.slug, slug))
+    .limit(1))[0];
+
+  let product: { id: number; slug: string; title: string; priceDecimal: any; currency: string | null } | null = null;
+  if (category) {
+    if (!category.priceDecimal) throw new Error(`Product "${category.name}" does not have a price set`);
+    product = { id: category.id, slug: category.slug, title: category.name, priceDecimal: category.priceDecimal as any, currency: (category as any).currency ?? "USD" };
   }
+
+  if (!product) throw new Error(`Product not found with slug: ${slug}`);
 
   const existing = await db
     .select()

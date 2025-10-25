@@ -136,7 +136,7 @@ export const carts = pgTable(
 export const cartItems = pgTable("cart_items", {
   id: serial("id").primaryKey(),
   cartId: integer("cart_id").references(() => carts.id).notNull(),
-  productId: integer("product_id").references(() => products.id).notNull(),
+  productId: integer("product_id").references(() => categories.id).notNull(),
   quantity: integer("quantity").notNull().default(1),
   unitPrice: numeric("unit_price", { precision: 12, scale: 2 }).notNull(),
   currency: varchar("currency", { length: 3 }).notNull().default("USD"),
@@ -170,7 +170,7 @@ export const orders = pgTable("orders", {
 export const orderItems = pgTable("order_items", {
   id: serial("id").primaryKey(),
   orderId: integer("order_id").references(() => orders.id).notNull(),
-  productId: integer("product_id").references(() => products.id).notNull(),
+  productId: integer("product_id").references(() => categories.id).notNull(),
   quantity: integer("quantity").notNull(),
   unitPrice: numeric("unit_price", { precision: 12, scale: 2 }).notNull(),
   currency: varchar("currency", { length: 3 }).notNull(),

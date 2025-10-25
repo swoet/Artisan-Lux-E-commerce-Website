@@ -17,11 +17,19 @@ export type ProductInput = {
 };
 
 export async function listProducts() {
-  return db.select().from(products).orderBy(asc(products.order), asc(products.title));
+  // Select only safe, widely-present columns
+  return db
+    .select({ id: products.id, title: products.title, slug: products.slug })
+    .from(products)
+    .orderBy(asc(products.title));
 }
 
 export async function getProductBySlug(slug: string) {
-  const rows = await db.select().from(products).where(eq(products.slug, slug)).limit(1);
+  const rows = await db
+    .select({ id: products.id, title: products.title, slug: products.slug })
+    .from(products)
+    .where(eq(products.slug, slug))
+    .limit(1);
   return rows[0] ?? null;
 }
 
