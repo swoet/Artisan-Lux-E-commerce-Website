@@ -129,7 +129,7 @@ export async function addItemByProductSlug(sessionToken: string, slug: string, q
       productId: product.id,
       quantity: Math.max(1, quantity),
       unitPrice: asNumeric(product.priceDecimal as unknown as string),
-      currency: product.currency,
+      currency: product.currency ?? "USD",
     });
   }
 
