@@ -5,6 +5,39 @@ function getResendClient() {
   return new Resend(process.env.RESEND_API_KEY || "");
 }
 
+// Owner notification: payment proof uploaded
+export async function sendOwnerPaymentProofEmail(data: {
+  to: string;
+  orderId: number;
+  customerEmail: string;
+  total: string;
+  currency: string;
+  paymentMethod: string;
+  proofUrl: string;
+}) {
+  try {
+    const resend = getResendClient();
+    const html = `
+      <h2>New Payment Proof Uploaded</h2>
+      <p><strong>Order:</strong> #${data.orderId}</p>
+      <p><strong>Customer:</strong> ${data.customerEmail}</p>
+      <p><strong>Amount:</strong> ${data.currency} ${data.total}</p>
+      <p><strong>Method:</strong> ${data.paymentMethod}</p>
+      <p><a href="${data.proofUrl}" target="_blank">View Proof</a></p>
+    `;
+    const result = await resend.emails.send({
+      from: "Artisan Lux <no-reply@artisan-lux.com>",
+      to: data.to,
+      subject: `Payment Proof for Order #${data.orderId}`,
+      html,
+    });
+    return { success: true, result };
+  } catch (error) {
+    console.error("Owner email send error:", error);
+    return { success: false, error };
+  }
+}
+
 export type EmailTemplate = "order-confirmation" | "abandoned-cart" | "newsletter";
 
 type OrderConfirmationData = {

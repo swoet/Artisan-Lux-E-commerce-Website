@@ -187,6 +187,15 @@ export const payments = pgTable("payments", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Payment proofs (manual/offline payments)
+export const paymentProofs = pgTable("payment_proofs", {
+  id: serial("id").primaryKey(),
+  orderId: integer("order_id").references(() => orders.id).notNull(),
+  url: text("url").notNull(),
+  paymentMethod: varchar("payment_method", { length: 40 }),
+  uploadedAt: timestamp("uploaded_at").defaultNow().notNull(),
+});
+
 // Wishlist
 export const wishlists = pgTable(
   "wishlists",

@@ -65,16 +65,12 @@ export async function POST(request: NextRequest) {
     if (!productId) return NextResponse.json({ error: "productId or productSlug required" }, { status: 400 });
     const cookieStore = await cookies();
     let sessionToken = cookieStore.get("wishlist_session")?.value;
+    let createdSession = false;
 
     // Create session if doesn't exist
     if (!sessionToken) {
       sessionToken = crypto.randomUUID();
-      cookieStore.set("wishlist_session", sessionToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 60 * 60 * 24 * 365, // 1 year
-      });
+      createdSession = true;
     }
 
     // Get or create wishlist
@@ -105,13 +101,37 @@ export async function POST(request: NextRequest) {
       .limit(1);
 
     if (existing.length > 0) {
-      return NextResponse.json({ message: "Already in wishlist" });
+      const res = NextResponse.json({ message: "Already in wishlist" });
+      if (createdSession && sessionToken) {
+        res.cookies.set({
+          name: "wishlist_session",
+          value: sessionToken,
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          maxAge: 60 * 60 * 24 * 365,
+          path: "/",
+        });
+      }
+      return res;
     }
 
     // Add to wishlist
     await db.insert(wishlistItems).values({ wishlistId: wishlist[0].id, productId });
 
-    return NextResponse.json({ message: "Added to wishlist" });
+    const res = NextResponse.json({ message: "Added to wishlist" });
+    if (createdSession && sessionToken) {
+      res.cookies.set({
+        name: "wishlist_session",
+        value: sessionToken,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 365,
+        path: "/",
+      });
+    }
+    return res;
   } catch (error) {
     console.error("Add to wishlist error:", error);
     return NextResponse.json(

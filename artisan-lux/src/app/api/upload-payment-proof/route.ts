@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { db } from "@/db";
-import { orders, customers } from "@/db/schema";
+import { orders, customers, paymentProofs } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { emitOrderEvent } from "@/lib/socket";
+import { sendOwnerPaymentProofEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   try {
@@ -60,6 +61,17 @@ export async function POST(req: NextRequest) {
     )[0];
 
     if (order) {
+      // Save to DB (non-invasive addition)
+      try {
+        await db.insert(paymentProofs).values({
+          orderId: order.id,
+          url: proofUrl,
+          paymentMethod: paymentMethod || null as any,
+        });
+      } catch (e) {
+        console.error("Failed to persist payment proof:", e);
+      }
+
       emitOrderEvent("payment.proof.uploaded", {
         orderId: order.id,
         email: order.email ?? "",
@@ -67,6 +79,26 @@ export async function POST(req: NextRequest) {
         proofUrl,
         paymentMethod,
       });
+
+      // Owner notification email (if ADMIN_NOTIFICATION_EMAIL set)
+      try {
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || new URL(req.url).origin;
+        const absoluteUrl = proofUrl.startsWith("http") ? proofUrl : `${siteUrl}${proofUrl}`;
+        const to = process.env.ADMIN_NOTIFICATION_EMAIL || process.env.OWNER_EMAIL;
+        if (to) {
+          await sendOwnerPaymentProofEmail({
+            to,
+            orderId: order.id,
+            customerEmail: order.email || "",
+            total: String(order.total),
+            currency: "USD",
+            paymentMethod: paymentMethod || "unknown",
+            proofUrl: absoluteUrl,
+          });
+        }
+      } catch (e) {
+        console.error("Failed to send owner payment proof email:", e);
+      }
     }
 
     return NextResponse.json({ 
