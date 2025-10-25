@@ -30,16 +30,11 @@ async function fetchCatalog(): Promise<{ taxonomy: TaxonomyNode[]; items: AdminI
     // Fetch from admin backend directly to bypass any proxy issues
     const adminOrigin = process.env.NEXT_PUBLIC_ADMIN_ORIGIN || process.env.ADMIN_BASE_URL || "https://artisan-lux-e-commerce-website.vercel.app";
     const res = await fetch(`${adminOrigin}/api/catalog`, { cache: "no-store" });
-    if (!res.ok) {
-      console.error(`[fetchCatalog] Failed to fetch from ${adminOrigin}/api/catalog:`, res.status);
-      return { taxonomy: TAXONOMY_FALLBACK as unknown as TaxonomyNode[], items: [], categories: [] };
-    }
+    if (!res.ok) return { taxonomy: TAXONOMY_FALLBACK as unknown as TaxonomyNode[], items: [], categories: [] };
     const data = await res.json();
-    console.log(`[fetchCatalog] Fetched ${data.items?.length ?? 0} items from admin`);
     if (!data?.taxonomy?.length) data.taxonomy = TAXONOMY_FALLBACK as unknown as TaxonomyNodeFallback[];
     return data;
-  } catch (err) {
-    console.error("[fetchCatalog] Error:", err);
+  } catch {
     return { taxonomy: TAXONOMY_FALLBACK as unknown as TaxonomyNode[], items: [], categories: [] };
   }
 }
@@ -50,24 +45,16 @@ function keyFromSlug(slug: string) { return slug.replace(/-/g, "_"); }
 async function getData(slug: string): Promise<{ cat: CategoryRecord | null; items: ProductRecord[]; subcats: { id?: number; slug: string; name: string }[]; friendly?: string }> {
   const { taxonomy, items } = await fetchCatalog();
   const rootKey = keyFromSlug(slug);
-  console.log(`[getData] slug="${slug}", rootKey="${rootKey}", items count=${items.length}`);
   const root = (taxonomy as TaxonomyNode[]).find((t) => t.key === rootKey);
-  if (!root) {
-    console.error(`[getData] Root category not found for key="${rootKey}"`);
-    return { cat: null, items: [], subcats: [], friendly: undefined };
-  }
+  if (!root) return { cat: null, items: [], subcats: [], friendly: undefined };
   const subcats = (root.children ?? []).map((c) => ({ slug: slugFromKey(c.key), name: c.name }));
   // Items: match root key OR any child keys OR keys that start with root (for deeper nesting)
   const childKeys = (root.children ?? []).map((c) => c.key);
   const allKeys = [rootKey, ...childKeys];
-  console.log(`[getData] allKeys:`, allKeys);
   const filtered = (items as AdminItem[]).filter((it) => {
     const key = it.taxonomyKey ?? "";
-    const match = allKeys.includes(key) || key.startsWith(rootKey + "_");
-    if (!match) console.log(`[getData] Item "${it.name}" (key="${key}") filtered out`);
-    return match;
+    return allKeys.includes(key) || key.startsWith(rootKey + "_");
   });
-  console.log(`[getData] Filtered ${filtered.length} items for category "${rootKey}"`);
   const mapped: ProductRecord[] = filtered.map((it) => ({
     id: it.id,
     title: it.name,
