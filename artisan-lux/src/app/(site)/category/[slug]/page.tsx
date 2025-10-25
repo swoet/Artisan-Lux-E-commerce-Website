@@ -4,7 +4,7 @@ import LiveCatalogRefresh from "@/components/site/LiveCatalogRefresh.server";
 import { Picture } from "@/components/site/Picture";
 import { TAXONOMY_FALLBACK, type TaxonomyNode as TaxonomyNodeFallback } from "@/lib/taxonomy";
 
-export const revalidate = 0;
+export const revalidate = 300; // 5 minutes ISR, with on-demand revalidation from admin
 
 type CategoryRecord = { id: number; name: string; description: string | null };
 type ProductRecord = {
@@ -29,7 +29,12 @@ async function fetchCatalog(): Promise<{ taxonomy: TaxonomyNode[]; items: AdminI
   try {
     // Fetch from admin backend directly to bypass any proxy issues
     const adminOrigin = process.env.NEXT_PUBLIC_ADMIN_ORIGIN || process.env.ADMIN_BASE_URL || "https://artisan-lux-e-commerce-website.vercel.app";
-    const res = await fetch(`${adminOrigin}/api/catalog`, { cache: "no-store" });
+    const res = await fetch(`${adminOrigin}/api/catalog`, { 
+      next: { 
+        tags: ["catalog"], 
+        revalidate: 300 // Cache for 5 minutes, revalidate on-demand via admin
+      } 
+    });
     if (!res.ok) return { taxonomy: TAXONOMY_FALLBACK as unknown as TaxonomyNode[], items: [], categories: [] };
     const data = await res.json();
     if (!data?.taxonomy?.length) data.taxonomy = TAXONOMY_FALLBACK as unknown as TaxonomyNodeFallback[];
