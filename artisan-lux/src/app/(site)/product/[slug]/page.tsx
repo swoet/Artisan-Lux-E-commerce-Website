@@ -3,7 +3,7 @@ import LiveCatalogRefresh from "@/components/site/LiveCatalogRefresh.server";
 import ProductGallery from "@/components/site/ProductGallery";
 import ProductActions from "@/components/site/ProductActions";
 
-export const revalidate = 60;
+export const revalidate = 300; // 5 minutes ISR, with on-demand revalidation from admin
 
 type AdminItem = {
   id: number;
@@ -34,27 +34,37 @@ type ProductView = {
 };
 
 async function getProduct(slug: string): Promise<ProductView | null> {
-  // Fetch catalog and find by slug to avoid absolute-origin calls
-  const res = await fetch(`/api/catalog-proxy`, { next: { tags: ["product:" + slug, "catalog"], revalidate: 300 } });
-  if (!res.ok) return null;
-  const data = (await res.json()) as { items: AdminItem[] };
-  const found = (data.items || []).find((it) => it.slug === slug);
-  if (!found) return null;
-  const galleryUrls = (found.gallery || []).filter((g) => !!g?.url).map((g) => g.url as string);
-  const videoUrl = (found.videoAsset && found.videoAsset.type === "video") ? (found.videoAsset.url ?? null) : null;
-  return {
-    title: found.name,
-    slug: found.slug,
-    priceDecimal: Number(found.priceDecimal ?? 0),
-    currency: found.currency ?? "USD",
-    descriptionRich: found.descriptionRich ?? null,
-    materials: found.materials ?? null,
-    tags: found.tags ?? [],
-    coverImageUrl: found.coverImage?.url ?? null,
-    gallery: galleryUrls,
-    videoUrl,
-    status: "published",
-  };
+  try {
+    // Fetch from admin backend directly to bypass any proxy issues
+    const adminOrigin = process.env.NEXT_PUBLIC_ADMIN_ORIGIN || process.env.ADMIN_BASE_URL || "https://artisan-lux-e-commerce-website.vercel.app";
+    const res = await fetch(`${adminOrigin}/api/catalog`, { 
+      next: { 
+        tags: ["product:" + slug, "catalog"], 
+        revalidate: 300 
+      } 
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { items: AdminItem[] };
+    const found = (data.items || []).find((it) => it.slug === slug);
+    if (!found) return null;
+    const galleryUrls = (found.gallery || []).filter((g) => !!g?.url).map((g) => g.url as string);
+    const videoUrl = (found.videoAsset && found.videoAsset.type === "video") ? (found.videoAsset.url ?? null) : null;
+    return {
+      title: found.name,
+      slug: found.slug,
+      priceDecimal: Number(found.priceDecimal ?? 0),
+      currency: found.currency ?? "USD",
+      descriptionRich: found.descriptionRich ?? null,
+      materials: found.materials ?? null,
+      tags: found.tags ?? [],
+      coverImageUrl: found.coverImage?.url ?? null,
+      gallery: galleryUrls,
+      videoUrl,
+      status: "published",
+    };
+  } catch {
+    return null;
+  }
 }
 
 export default async function ProductPage(props: unknown) {
