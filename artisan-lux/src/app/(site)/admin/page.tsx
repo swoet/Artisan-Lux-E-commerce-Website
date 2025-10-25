@@ -43,6 +43,17 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className="bg-gradient-to-br from-[#2a1a10] to-[#1a0f08] border border-[#cd7f32]/30 rounded-lg p-6">
+            <h2 className="text-xl font-semibold mb-2">Payment Proofs</h2>
+            <p className="text-neutral-400 text-sm">Browse recent uploads</p>
+            <Link 
+              href="/admin/payment-proofs" 
+              className="mt-4 inline-block px-4 py-2 bg-[#cd7f32] rounded text-sm hover:opacity-90 transition-opacity"
+            >
+              View Proofs
+            </Link>
+          </div>
+
+          <div className="bg-gradient-to-br from-[#2a1a10] to-[#1a0f08] border border-[#cd7f32]/30 rounded-lg p-6">
             <h2 className="text-xl font-semibold mb-2">Notifications</h2>
             <p className="text-neutral-400 text-sm">Real-time order alerts enabled</p>
             <div className="mt-4 flex items-center gap-2 text-sm">
