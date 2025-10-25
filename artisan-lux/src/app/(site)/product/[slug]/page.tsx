@@ -1,7 +1,9 @@
 import Link from "next/link";
 import LiveCatalogRefresh from "@/components/site/LiveCatalogRefresh.server";
 import ProductGallery from "@/components/site/ProductGallery";
+import { WishlistButton } from "@/components/site/WishlistButton";
 import ProductActions from "@/components/site/ProductActions";
+import CartIcon from "@/components/site/CartIcon";
 
 export const revalidate = 300; // 5 minutes ISR, with on-demand revalidation from admin
 
@@ -20,6 +22,7 @@ type AdminItem = {
 };
 
 type ProductView = {
+  id: number;
   title: string;
   slug: string;
   priceDecimal: number;
@@ -50,6 +53,7 @@ async function getProduct(slug: string): Promise<ProductView | null> {
     const galleryUrls = (found.gallery || []).filter((g) => !!g?.url).map((g) => g.url as string);
     const videoUrl = (found.videoAsset && found.videoAsset.type === "video") ? (found.videoAsset.url ?? null) : null;
     return {
+      id: found.id,
       title: found.name,
       slug: found.slug,
       priceDecimal: Number(found.priceDecimal ?? 0),
@@ -84,16 +88,20 @@ export default async function ProductPage(props: unknown) {
     <div className="min-h-screen bg-gradient-to-b from-[#2a1a10] to-[#1a0f08] text-white">
       <nav className="flex items-center justify-between p-6 border-b border-white/10">
         <Link href="/" className="text-2xl font-serif tracking-wide bg-gradient-to-r from-[#b87333] to-[#cd7f32] bg-clip-text text-transparent">Artisan Lux</Link>
-        <div className="flex gap-6 text-sm">
+        <div className="flex gap-6 items-center text-sm">
           <Link href="/categories" className="hover:text-[#cd7f32] transition-colors">Categories</Link>
+          <CartIcon />
         </div>
       </nav>
 
       <main className="max-w-5xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-10 items-start">
         {/* Live refresh when catalog changes */}
         <LiveCatalogRefresh />
-        <div>
+        <div className="space-y-4">
           <ProductGallery title={p.title} cover={p.coverImageUrl} gallery={p.gallery} />
+          <div>
+            <WishlistButton productId={p.id} />
+          </div>
         </div>
 
         <section>

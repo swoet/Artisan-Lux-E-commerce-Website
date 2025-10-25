@@ -38,6 +38,7 @@ export default function ProductActions({ productName, productSlug }: ProductActi
       });
       if (!res.ok) throw new Error("Failed to add to cart");
       setMessage("Added to cart");
+      try { window.dispatchEvent(new Event("cart:changed")); } catch {}
     } catch (e) {
       setMessage(e instanceof Error ? e.message : "Something went wrong");
     } finally {
@@ -62,6 +63,7 @@ export default function ProductActions({ productName, productSlug }: ProductActi
         body: JSON.stringify({ productSlug, quantity: 1 }),
       });
       if (!add.ok) throw new Error("Failed to prepare cart");
+      try { window.dispatchEvent(new Event("cart:changed")); } catch {}
 
       const checkout = await fetch("/api/checkout", { method: "POST" });
       const data = await checkout.json();

@@ -3,6 +3,7 @@ import CategoryFilters from "@/components/site/CategoryFilters";
 import LiveCatalogRefresh from "@/components/site/LiveCatalogRefresh.server";
 import { Picture } from "@/components/site/Picture";
 import { TAXONOMY_FALLBACK, type TaxonomyNode as TaxonomyNodeFallback } from "@/lib/taxonomy";
+import CartIcon from "@/components/site/CartIcon";
 
 export const revalidate = 300; // 5 minutes ISR, with on-demand revalidation from admin
 
@@ -141,8 +142,9 @@ export default async function CategoryPage(props: unknown) {
     <div className="min-h-screen bg-gradient-to-b from-[#2a1a10] to-[#1a0f08] text-white">
       <nav className="flex items-center justify-between p-6 border-b border-white/10">
         <Link href="/" className="text-2xl font-serif tracking-wide bg-gradient-to-r from-[#b87333] to-[#cd7f32] bg-clip-text text-transparent">Artisan Lux</Link>
-        <div className="flex gap-6 text-sm">
+        <div className="flex gap-6 items-center text-sm">
           <Link href="/categories" className="hover:text-[#cd7f32] transition-colors">Categories</Link>
+          <CartIcon />
         </div>
       </nav>
 

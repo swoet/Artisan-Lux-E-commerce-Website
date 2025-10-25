@@ -204,7 +204,7 @@ export const wishlists = pgTable(
 export const wishlistItems = pgTable("wishlist_items", {
   id: serial("id").primaryKey(),
   wishlistId: integer("wishlist_id").references(() => wishlists.id).notNull(),
-  productId: integer("product_id").references(() => products.id).notNull(),
+  productId: integer("product_id").references(() => categories.id).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

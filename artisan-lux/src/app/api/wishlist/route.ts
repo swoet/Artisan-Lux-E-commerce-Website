@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { db } from "@/db";
-import { wishlists, wishlistItems, products, mediaAssets } from "@/db/schema";
+import { wishlists, wishlistItems, categories, mediaAssets } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 
 // Get wishlist
@@ -27,17 +27,17 @@ export async function GET(request: NextRequest) {
     const items = await db
       .select({
         id: wishlistItems.id,
-        productId: products.id,
-        slug: products.slug,
-        title: products.title,
-        priceDecimal: products.priceDecimal,
-        currency: products.currency,
+        productId: categories.id,
+        slug: categories.slug,
+        title: categories.name,
+        priceDecimal: categories.priceDecimal,
+        currency: categories.currency,
         coverImageUrl: mediaAssets.url,
         addedAt: wishlistItems.createdAt,
       })
       .from(wishlistItems)
-      .innerJoin(products, eq(wishlistItems.productId, products.id))
-      .leftJoin(mediaAssets, eq(products.coverImageId, mediaAssets.id))
+      .innerJoin(categories, eq(wishlistItems.productId, categories.id))
+      .leftJoin(mediaAssets, eq(categories.coverImageId, mediaAssets.id))
       .where(eq(wishlistItems.wishlistId, wishlist[0].id));
 
     return NextResponse.json({ items });

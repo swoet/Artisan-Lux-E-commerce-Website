@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { db } from "@/db";
-import { wishlists, wishlistItems, products, mediaAssets } from "@/db/schema";
+import { wishlists, wishlistItems, categories, mediaAssets } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 export const metadata = {
@@ -18,8 +18,8 @@ export default async function WishlistPage() {
     productId: number;
     slug: string;
     title: string;
-    priceDecimal: string;
-    currency: string;
+    priceDecimal: string | null;
+    currency: string | null;
     coverImageUrl: string | null;
     addedAt: Date;
   };
@@ -36,17 +36,17 @@ export default async function WishlistPage() {
       items = await db
         .select({
           id: wishlistItems.id,
-          productId: products.id,
-          slug: products.slug,
-          title: products.title,
-          priceDecimal: products.priceDecimal,
-          currency: products.currency,
+          productId: categories.id,
+          slug: categories.slug,
+          title: categories.name,
+          priceDecimal: categories.priceDecimal,
+          currency: categories.currency,
           coverImageUrl: mediaAssets.url,
           addedAt: wishlistItems.createdAt,
         })
         .from(wishlistItems)
-        .innerJoin(products, eq(wishlistItems.productId, products.id))
-        .leftJoin(mediaAssets, eq(products.coverImageId, mediaAssets.id))
+        .innerJoin(categories, eq(wishlistItems.productId, categories.id))
+        .leftJoin(mediaAssets, eq(categories.coverImageId, mediaAssets.id))
         .where(eq(wishlistItems.wishlistId, wishlist[0].id));
     }
   }
@@ -108,9 +108,11 @@ export default async function WishlistPage() {
                   <h3 className="font-serif text-lg font-semibold text-white mb-2 group-hover:text-[#cd7f32] transition-colors">
                     {item.title}
                   </h3>
-                  <p className="text-[#cd7f32] font-semibold">
-                    {item.currency} {parseFloat(item.priceDecimal).toFixed(2)}
-                  </p>
+                  {item.priceDecimal ? (
+                    <p className="text-[#cd7f32] font-semibold">
+                      {item.currency || "USD"} {parseFloat(String(item.priceDecimal)).toFixed(2)}
+                    </p>
+                  ) : null}
                 </Link>
               </div>
             ))}
