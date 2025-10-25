@@ -62,6 +62,9 @@ export default async function PaymentInstructionsPage(props: unknown) {
           Artisan Lux
         </Link>
         <div className="flex gap-6 text-sm">
+          <Link href="/orders/pending" className="hover:text-[#cd7f32] transition-colors">
+            Pending Orders
+          </Link>
           <Link href="/categories" className="hover:text-[#cd7f32] transition-colors">
             Categories
           </Link>
@@ -208,10 +211,17 @@ export default async function PaymentInstructionsPage(props: unknown) {
           </div>
         )}
 
-        <div className="mt-8 text-center">
-          <Link href="/" className="text-[#cd7f32] underline">
-            Return to Home
-          </Link>
+        <div className="mt-8 text-center space-y-3">
+          <div>
+            <Link href="/orders/pending" className="text-[#cd7f32] underline">
+              View All Pending Orders
+            </Link>
+          </div>
+          <div>
+            <Link href="/" className="text-[#cd7f32] underline">
+              Return to Home
+            </Link>
+          </div>
         </div>
       </main>
 

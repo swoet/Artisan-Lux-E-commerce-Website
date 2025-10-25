@@ -36,8 +36,13 @@ export default function PaymentProofUpload({ orderId }: { orderId: number }) {
       if (!res.ok) throw new Error(data.error || "Upload failed");
 
       setStatus("success");
-      setMessage("Proof uploaded successfully! We will verify your payment shortly.");
+      setMessage("Proof uploaded successfully! Redirecting...");
       setFile(null);
+      
+      // Redirect to pending orders after 2 seconds
+      setTimeout(() => {
+        window.location.href = "/orders/pending";
+      }, 2000);
     } catch (e) {
       setStatus("error");
       setMessage(e instanceof Error ? e.message : "Upload failed");

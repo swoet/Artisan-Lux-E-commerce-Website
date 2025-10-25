@@ -54,9 +54,14 @@ export default async function OrdersPage({
             Artisan Lux
           </h1>
         </a>
-        <a href="/" className="text-sm hover:text-[#cd7f32] transition-colors">
-          ← Back to Home
-        </a>
+        <div className="flex gap-6 text-sm">
+          <Link href="/orders/pending" className="hover:text-[#cd7f32] transition-colors">
+            Pending Orders
+          </Link>
+          <a href="/" className="hover:text-[#cd7f32] transition-colors">
+            ← Back to Home
+          </a>
+        </div>
       </nav>
 
       <div className="container mx-auto px-6 py-12 max-w-5xl">
