@@ -2,10 +2,14 @@ import Link from "next/link";
 import { db } from "@/db";
 import { orders, payments, customers, paymentProofs } from "@/db/schema";
 import { desc, eq, or, ne } from "drizzle-orm";
+import MarkPaidButton from "@/components/MarkPaidButton";
 
 export const revalidate = 0;
 
-export default async function PaymentsPage() {
+export default async function PaymentsPage({ searchParams }: { searchParams?: { q?: string } }) {
+  const q = (searchParams?.q || "").trim().toLowerCase();
+  const siteUrl = process.env.NEXT_PUBLIC_USER_SITE_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://www.artisan-lux.com";
+  const makeAbsolute = (url: string) => (url?.startsWith("http") ? url : `${siteUrl}${url}`);
   // Pending payments: order status pending OR payment not succeeded
   const pending = await db
     .select({
@@ -21,6 +25,10 @@ export default async function PaymentsPage() {
     .leftJoin(payments, eq(payments.orderId, orders.id))
     .leftJoin(customers, eq(customers.id, orders.customerId))
     .where(or(eq(orders.status, "pending"), ne(payments.status, "succeeded")));
+
+  const pendingFiltered = q
+    ? pending.filter((p) => `${p.orderId}`.includes(q) || (p.email || "").toLowerCase().includes(q))
+    : pending;
 
   const proofs = await db
     .select({
@@ -39,6 +47,10 @@ export default async function PaymentsPage() {
     .orderBy(desc(paymentProofs.uploadedAt))
     .limit(50);
 
+  const proofsFiltered = q
+    ? proofs.filter((p) => `${p.orderId}`.includes(q) || (p.email || "").toLowerCase().includes(q))
+    : proofs;
+
   return (
     <div className="min-h-screen">
       <header className="mb-8">
@@ -47,11 +59,23 @@ export default async function PaymentsPage() {
       </header>
 
       <section className="mb-12">
+        <form className="mb-4 flex items-center gap-3" action="/payments" method="get">
+          <input
+            name="q"
+            defaultValue={q}
+            placeholder="Search by order # or email"
+            className="px-3 py-2 rounded border border-[var(--color-border)] bg-white/5 w-80"
+          />
+          <button className="px-4 py-2 rounded bg-[var(--brand-to)] text-white">Search</button>
+          {q && (
+            <Link href="/payments" className="text-sm text-[var(--brand-to)] hover:underline">Clear</Link>
+          )}
+        </form>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-xl font-semibold">Pending</h2>
-          <span className="text-sm text-[var(--color-fg)]/70">{pending.length} total</span>
+          <span className="text-sm text-[var(--color-fg)]/70">{pendingFiltered.length} total</span>
         </div>
-        {pending.length === 0 ? (
+        {pendingFiltered.length === 0 ? (
           <div className="p-6 rounded-lg border border-[var(--color-border)] bg-white/5 text-[var(--color-fg)]/80">No pending payments</div>
         ) : (
           <div className="overflow-x-auto rounded-lg border border-[var(--color-border)]">
@@ -64,10 +88,11 @@ export default async function PaymentsPage() {
                   <th className="px-4 py-3 text-left">Order Status</th>
                   <th className="px-4 py-3 text-left">Payment Status</th>
                   <th className="px-4 py-3 text-left">Created</th>
+                  <th className="px-4 py-3 text-left">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {pending.map((row, idx) => (
+                {pendingFiltered.map((row, idx) => (
                   <tr key={`${row.orderId}-${idx}`} className="border-t border-[var(--color-border)]/70">
                     <td className="px-4 py-3">#{row.orderId}</td>
                     <td className="px-4 py-3">{row.email || "-"}</td>
@@ -75,6 +100,9 @@ export default async function PaymentsPage() {
                     <td className="px-4 py-3 capitalize">{row.orderStatus}</td>
                     <td className="px-4 py-3 capitalize">{row.paymentStatus || "-"}</td>
                     <td className="px-4 py-3">{row.createdAt ? new Date(row.createdAt).toLocaleString() : "-"}</td>
+                    <td className="px-4 py-3">
+                      <MarkPaidButton orderId={row.orderId} />
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -86,9 +114,9 @@ export default async function PaymentsPage() {
       <section>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-xl font-semibold">Payment Proofs</h2>
-          <span className="text-sm text-[var(--color-fg)]/70">{proofs.length} recent</span>
+          <span className="text-sm text-[var(--color-fg)]/70">{proofsFiltered.length} recent</span>
         </div>
-        {proofs.length === 0 ? (
+        {proofsFiltered.length === 0 ? (
           <div className="p-6 rounded-lg border border-[var(--color-border)] bg-white/5 text-[var(--color-fg)]/80">No proofs uploaded</div>
         ) : (
           <div className="overflow-x-auto rounded-lg border border-[var(--color-border)]">
@@ -104,14 +132,17 @@ export default async function PaymentsPage() {
                 </tr>
               </thead>
               <tbody>
-                {proofs.map((p) => (
+                {proofsFiltered.map((p) => (
                   <tr key={p.id} className="border-t border-[var(--color-border)]/70">
                     <td className="px-4 py-3">{p.uploadedAt ? new Date(p.uploadedAt).toLocaleString() : "-"}</td>
                     <td className="px-4 py-3">#{p.orderId}</td>
                     <td className="px-4 py-3">{p.email || "-"}</td>
                     <td className="px-4 py-3">{p.currency} {p.total ? parseFloat(String(p.total)).toFixed(2) : "-"}</td>
                     <td className="px-4 py-3">{p.paymentMethod || "-"}</td>
-                    <td className="px-4 py-3"><a href={p.url} target="_blank" rel="noreferrer" className="text-[var(--brand-to)] hover:underline">View</a></td>
+                    <td className="px-4 py-3 flex gap-3">
+                      <a href={makeAbsolute(p.url)} target="_blank" rel="noreferrer" className="text-[var(--brand-to)] hover:underline">View</a>
+                      <a href={makeAbsolute(p.url)} download className="text-[var(--brand-to)] hover:underline">Download</a>
+                    </td>
                   </tr>
                 ))}
               </tbody>
