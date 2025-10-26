@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "migrate:artisan": "tsx scripts/migrate-artisan-fields.ts"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

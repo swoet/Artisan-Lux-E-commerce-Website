@@ -5,6 +5,7 @@ import { WishlistButton } from "@/components/site/WishlistButton";
 import ProductActions from "@/components/site/ProductActions";
 import CartIcon from "@/components/site/CartIcon";
 import PendingOrdersIcon from "@/components/site/PendingOrdersIcon";
+import ArtisanProductBadge from "@/components/site/ArtisanProductBadge";
 
 export const revalidate = 300; // 5 minutes ISR, with on-demand revalidation from admin
 
@@ -129,6 +130,11 @@ export default async function ProductPage(props: unknown) {
               </video>
             </div>
           ) : null}
+
+          {/* Artisan Information & Provenance Passport */}
+          <div className="mt-8">
+            <ArtisanProductBadge productSlug={p.slug} />
+          </div>
 
           <ProductActions productName={p.title} productSlug={p.slug} />
         </section>

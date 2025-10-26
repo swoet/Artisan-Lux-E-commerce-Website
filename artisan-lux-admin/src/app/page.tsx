@@ -30,6 +30,10 @@ export default async function AdminDashboard() {
           <h2 className="font-semibold">Catalog</h2>
           <p className="text-sm text-[var(--color-muted)]">Manage items and categories</p>
         </Link>
+        <Link href="/dashboard/artisan-portal" className="group card p-5 transition-transform hover:-translate-y-0.5">
+          <h2 className="font-semibold">🏺 Artisan Portal</h2>
+          <p className="text-sm text-[var(--color-muted)]">Manage artisan accounts & portal</p>
+        </Link>
         <Link href="http://localhost:3000" target="_blank" className="group card p-5 transition-transform hover:-translate-y-0.5">
           <h2 className="font-semibold">View User Site</h2>
           <p className="text-sm text-[var(--color-muted)]">See live customer-facing site</p>
