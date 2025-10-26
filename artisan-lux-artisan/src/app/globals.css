@@ -1,0 +1,172 @@
+@import "../theme/tokens.css";
+@import "tailwindcss";
+
+:root {
+  /* Bridge old names to tokens */
+  --background: var(--color-bg);
+  --foreground: var(--color-fg);
+  --color-brand-dark-wood: #2a1a10;
+  --color-brand-metallic: #b87333;
+  --color-brand-copper: #cd7f32;
+}
+
+@theme inline {
+  --color-background: var(--color-bg);
+  --color-foreground: var(--color-fg);
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
+  --font-mono: var(--font-mono);
+}
+
+body {
+  background-color: var(--color-bg);
+  background-image: linear-gradient(to bottom, #2a1a10, #1a0f08);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  color-scheme: dark;
+}
+
+.container {
+  max-width: var(--container);
+  margin-inline: auto;
+}
+
+.card {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 2px 0 hsl(var(--shadow-color));
+  padding: 1.5rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(to right, var(--brand-from), var(--brand-to));
+  color: white;
+  border: 1px solid color-mix(in oklab, white 15%, transparent);
+  transition: filter 120ms ease, opacity 120ms ease;
+  font-weight: 500;
+  cursor: pointer;
+}
+.btn:hover { filter: brightness(1.08); }
+.btn:disabled { opacity: .6; cursor: not-allowed; }
+
+.btn-primary {
+  background: linear-gradient(to right, var(--brand-from), var(--brand-to));
+  color: white;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--color-fg);
+  border: 1px solid var(--color-border);
+}
+.btn-secondary:hover { 
+  background: color-mix(in oklab, var(--color-fg) 6%, transparent); 
+  filter: none;
+}
+
+.btn-danger {
+  background: linear-gradient(to right, #ef4444, #dc2626);
+  color: white;
+  border: 1px solid color-mix(in oklab, white 12%, transparent);
+}
+
+.input, .select, .textarea {
+  width: 100%;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: color-mix(in oklab, var(--color-bg) 95%, white 5%);
+  color: var(--color-fg);
+  padding: 0.5rem 0.6rem;
+}
+.input::placeholder, .textarea::placeholder { 
+  color: color-mix(in oklab, var(--color-fg) 45%, transparent); 
+}
+.input:focus, .select:focus, .textarea:focus {
+  outline: none;
+  border-color: var(--brand-from);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--brand-from) 20%, transparent);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.badge-success {
+  background: color-mix(in oklab, #10b981 22%, transparent);
+  color: #d1fae5;
+}
+
+.badge-warning {
+  background: color-mix(in oklab, #f59e0b 22%, transparent);
+  color: #fef3c7;
+}
+
+.badge-error {
+  background: color-mix(in oklab, #ef4444 22%, transparent);
+  color: #fee2e2;
+}
+
+.badge-info {
+  background: color-mix(in oklab, #3b82f6 22%, transparent);
+  color: #dbeafe;
+}
+
+/* Table styles */
+.table {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+}
+.table thead th {
+  background: color-mix(in oklab, var(--color-bg) 78%, white 22%);
+  color: var(--color-fg);
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 600;
+}
+.table th, .table td { 
+  border-right: 1px solid var(--color-border);
+  padding: 0.75rem 1rem;
+}
+.table th:last-child, .table td:last-child { border-right: 0; }
+.table tr { border-bottom: 1px solid var(--color-border); }
+.table tbody tr:nth-child(odd) { 
+  background: color-mix(in oklab, var(--color-bg) 92%, white 8%); 
+}
+.table tbody tr:hover { 
+  background: color-mix(in oklab, var(--color-bg) 86%, white 14%); 
+}
+
+/* Mascot animation utilities */
+@keyframes blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  96% { transform: scaleY(0.1); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes wave {
+  0% { transform: rotate(0deg); }
+  50% { transform: rotate(12deg); }
+  100% { transform: rotate(0deg); }
+}
+.mascot { filter: drop-shadow(0 6px 12px hsl(var(--shadow-color)/0.25)); }
+.mascot-eye { transform-origin: center; animation: blink 4s infinite; }
+.mascot-float { animation: float 3.5s ease-in-out infinite; }
+.mascot-hand { transform-origin: 80% 20%; animation: wave 2.5s ease-in-out infinite; }
