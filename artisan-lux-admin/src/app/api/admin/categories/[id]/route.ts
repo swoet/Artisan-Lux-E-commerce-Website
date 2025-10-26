@@ -119,8 +119,15 @@ export async function DELETE(_req: Request, ctx: { params: Promise<{ id: string 
   if (Number.isNaN(id)) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
   const before = await getCategoryById(id);
   if (!before) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  const deleted = await deleteCategory(id);
-  if (!deleted) return NextResponse.json({ error: "Delete failed" }, { status: 500 });
+  try {
+    const deleted = await deleteCategory(id);
+    if (!deleted) return NextResponse.json({ error: "Delete failed" }, { status: 500 });
+  } catch (err: any) {
+    if (err?.message === "CATEGORY_HAS_ORDERS") {
+      return NextResponse.json({ error: "Cannot delete: category is referenced by existing orders" }, { status: 409 });
+    }
+    return NextResponse.json({ error: "Delete failed" }, { status: 500 });
+  }
   const tags = Array.from(new Set([
     CacheTags.home,
     CacheTags.categories,

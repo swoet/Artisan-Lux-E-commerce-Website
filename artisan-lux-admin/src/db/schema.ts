@@ -231,8 +231,35 @@ export const inventory = pgTable("inventory", {
 export const inventoryHistory = pgTable("inventory_history", {
   id: serial("id").primaryKey(),
   productId: integer("product_id").references(() => products.id).notNull(),
-  quantityChange: integer("quantity_change").notNull(),
-  reason: varchar("reason", { length: 50 }).notNull(),
+  quantityChange: integer("quantity_change").notNull(), // +5 for restock, -1 for sale
+  reason: varchar("reason", { length: 50 }).notNull(), // restock, sale, adjustment
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Minimal definitions for cross-app tables
+export const cartItems = pgTable("cart_items", {
+  id: serial("id").primaryKey(),
+  cartId: integer("cart_id").notNull(),
+  productId: integer("product_id").references(() => categories.id).notNull(),
+  quantity: integer("quantity").notNull().default(1),
+  unitPrice: numeric("unit_price", { precision: 12, scale: 2 }).notNull(),
+  currency: varchar("currency", { length: 3 }).notNull().default("USD"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const wishlistItems = pgTable("wishlist_items", {
+  id: serial("id").primaryKey(),
+  wishlistId: integer("wishlist_id").notNull(),
+  productId: integer("product_id").references(() => categories.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const orderItems = pgTable("order_items", {
+  id: serial("id").primaryKey(),
+  orderId: integer("order_id").notNull(),
+  productId: integer("product_id").references(() => categories.id).notNull(),
+  quantity: integer("quantity").notNull(),
+  unitPrice: numeric("unit_price", { precision: 12, scale: 2 }).notNull(),
+  currency: varchar("currency", { length: 3 }).notNull(),
 });

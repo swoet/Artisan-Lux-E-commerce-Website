@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { categories, categoryMediaLinks } from "@/db/schema";
+import { categories, categoryMediaLinks, cartItems, wishlistItems, orderItems } from "@/db/schema";
 import { eq, asc } from "drizzle-orm";
 
 export type CategoryInput = {
@@ -108,8 +108,19 @@ export async function updateCategory(id: number, input: Partial<CategoryInput>) 
 }
 
 export async function deleteCategory(id: number) {
-  // Remove dependent links first to satisfy FK constraints
+  // Block deletion if category is referenced by any existing orders (keep historical integrity)
+  const hasOrder = (await db.select({ id: orderItems.id }).from(orderItems).where(eq(orderItems.productId, id)).limit(1))[0];
+  if (hasOrder) {
+    throw new Error("CATEGORY_HAS_ORDERS");
+  }
+
+  // Clean up cart and wishlist references to satisfy FKs
+  await db.delete(cartItems).where(eq(cartItems.productId, id));
+  await db.delete(wishlistItems).where(eq(wishlistItems.productId, id));
+
+  // Remove dependent media links first to satisfy FK constraints
   await db.delete(categoryMediaLinks).where(eq(categoryMediaLinks.categoryId, id));
+
   const rows = await db.delete(categories).where(eq(categories.id, id)).returning();
   return rows[0] ?? null;
 }
