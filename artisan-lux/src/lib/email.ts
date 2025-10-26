@@ -25,11 +25,21 @@ export async function sendOwnerPaymentProofEmail(data: {
       <p><strong>Method:</strong> ${data.paymentMethod}</p>
       <p><a href="${data.proofUrl}" target="_blank">View Proof</a></p>
     `;
+    const text = [
+      `New Payment Proof Uploaded`,
+      `Order: #${data.orderId}`,
+      `Customer: ${data.customerEmail}`,
+      `Amount: ${data.currency} ${data.total}`,
+      `Method: ${data.paymentMethod}`,
+      `View Proof: ${data.proofUrl}`,
+    ].join("\n");
     const result = await resend.emails.send({
       from: "Artisan Lux <no-reply@artisan-lux.com>",
       to: data.to,
       subject: `Payment Proof for Order #${data.orderId}`,
       html,
+      text,
+      replyTo: process.env.SUPPORT_EMAIL || "support@artisan-lux.com",
     });
     return { success: true, result };
   } catch (error) {
@@ -131,6 +141,15 @@ export async function sendOrderConfirmationEmail(data: OrderConfirmationData) {
       to: data.customerEmail,
       subject: `Order Confirmation #${data.orderId}`,
       html,
+      text: [
+        `Artisan Lux - Order Confirmation #${data.orderId}`,
+        `Hello ${data.customerName},`,
+        `Items:`,
+        ...data.orderItems.map((i) => `- ${i.title} x ${i.quantity} - ${i.price}`),
+        `Total: ${data.orderTotal}`,
+        `Payment Method: ${data.paymentMethod}`,
+      ].join("\n"),
+      replyTo: process.env.SUPPORT_EMAIL || "support@artisan-lux.com",
     });
 
     return { success: true, result };
@@ -200,6 +219,14 @@ export async function sendAbandonedCartEmail(data: AbandonedCartData) {
       to: data.customerEmail,
       subject: "Your Artisan Lux cart is waiting",
       html,
+      text: [
+        `You left something behind${data.customerName ? `, ${data.customerName}` : ""}!`,
+        `Items:`,
+        ...data.cartItems.map((i) => `- ${i.title} - ${i.price}`),
+        `Cart Total: ${data.cartTotal}`,
+        `Complete your purchase: ${(process.env.NEXT_PUBLIC_SITE_URL || "").replace(/\/$/, "")}/cart`,
+      ].join("\n"),
+      replyTo: process.env.SUPPORT_EMAIL || "support@artisan-lux.com",
     });
 
     return { success: true, result };
@@ -218,6 +245,8 @@ export async function sendNewsletterEmail(data: NewsletterData) {
       to: data.recipientEmail,
       subject: data.subject,
       html: data.content,
+      text: data.content.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim(),
+      replyTo: process.env.SUPPORT_EMAIL || "support@artisan-lux.com",
     });
 
     return { success: true, result };
