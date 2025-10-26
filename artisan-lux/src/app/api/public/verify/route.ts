@@ -72,6 +72,28 @@ export async function POST(req: NextRequest) {
           secure: process.env.NODE_ENV === "production",
         });
       }
+
+      // Rotate cart token and wishlist session to isolate carts per account
+      const newCartToken = crypto.randomUUID();
+      res.cookies.set({
+        name: "cart_token",
+        value: newCartToken,
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 30, // 30 days
+        secure: process.env.NODE_ENV === "production",
+      });
+      const newWishlistToken = crypto.randomUUID();
+      res.cookies.set({
+        name: "wishlist_session",
+        value: newWishlistToken,
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 365, // 1 year
+        secure: process.env.NODE_ENV === "production",
+      });
     }
     return res;
   } catch {

@@ -40,13 +40,12 @@ export function getCustomerName(): string | null {
 
 export function logout(): void {
   if (typeof window === 'undefined') return;
-  
-  // Clear all auth cookies
-  document.cookie = 'customer_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-  document.cookie = 'customer_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-  document.cookie = 'customer_email=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-  document.cookie = 'customer_name=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-  
-  // Redirect to home
-  window.location.href = '/';
+
+  // Call server route to clear httpOnly cookies as well
+  fetch('/api/public/logout', { method: 'POST' })
+    .catch(() => {})
+    .finally(() => {
+      // Redirect to home
+      window.location.href = '/';
+    });
 }
