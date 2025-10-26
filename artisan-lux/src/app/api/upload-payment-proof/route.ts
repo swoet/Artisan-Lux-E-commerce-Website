@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { db } from "@/db";
 import { orders, customers, paymentProofs } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { emitOrderEvent } from "@/lib/socket";
 import { sendOwnerPaymentProofEmail } from "@/lib/email";
+import { getStore } from "@netlify/blobs";
 
 export async function POST(req: NextRequest) {
   try {
@@ -23,27 +23,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "File too large (max 5MB)" }, { status: 400 });
     }
 
-    // Validate file type
-    if (!file.type.startsWith("image/")) {
-      return NextResponse.json({ error: "Only image files are allowed" }, { status: 400 });
+    // Validate file type (images or PDF)
+    const isImage = file.type.startsWith("image/");
+    const isPdf = file.type === "application/pdf";
+    if (!isImage && !isPdf) {
+      return NextResponse.json({ error: "Only image or PDF files are allowed" }, { status: 400 });
     }
 
-    // Create uploads directory if it doesn't exist
-    const uploadsDir = path.join(process.cwd(), "public", "uploads", "payment-proofs");
-    await mkdir(uploadsDir, { recursive: true });
-
-    // Generate unique filename
+    // Store in Netlify Blobs (persisted across deploys)
     const timestamp = Date.now();
-    const ext = path.extname(file.name);
-    const filename = `order-${orderId}-${timestamp}${ext}`;
-    const filepath = path.join(uploadsDir, filename);
+    const ext = path.extname(file.name || "");
+    const key = `order-${orderId}-${timestamp}${ext}`;
+    const store = getStore("payment-proofs");
+    await store.set(key, file, { metadata: { contentType: file.type } });
 
-    // Convert file to buffer and save
-    const buffer = Buffer.from(await file.arrayBuffer());
-    await writeFile(filepath, buffer);
-
-    // Build URL to saved proof
-    const proofUrl = `/uploads/payment-proofs/${filename}`;
+    // API streaming URL
+    const proofUrl = `/api/payment-proofs/${encodeURIComponent(key)}`;
 
     // Emit real-time notification to admin with customer email
     const order = (

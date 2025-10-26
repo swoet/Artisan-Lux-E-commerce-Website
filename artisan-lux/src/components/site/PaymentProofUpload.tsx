@@ -72,7 +72,7 @@ export default function PaymentProofUpload({ orderId }: { orderId: number }) {
         <label className="block text-sm text-neutral-300 mb-2">Upload Proof (Screenshot/Photo)</label>
         <input
           type="file"
-          accept="image/*"
+          accept="image/*,application/pdf"
           onChange={(e) => setFile(e.target.files?.[0] || null)}
           className="w-full px-4 py-2 bg-black/40 border border-white/10 rounded text-white focus:outline-none focus:border-[#cd7f32] transition-colors file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:bg-[#cd7f32] file:text-white hover:file:bg-[#b87333] file:cursor-pointer"
           disabled={uploading}

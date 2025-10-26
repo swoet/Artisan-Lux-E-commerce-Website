@@ -16,6 +16,7 @@
     "three": "^0.180.0"
   },
   "dependencies": {
+    "@netlify/blobs": "^7.0.0",
     "@auth/drizzle-adapter": "^1.11.0",
     "@google/model-viewer": "^4.1.0",
     "@gsap/react": "^2.1.2",
