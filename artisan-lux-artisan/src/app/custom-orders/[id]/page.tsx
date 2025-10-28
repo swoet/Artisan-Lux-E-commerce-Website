@@ -9,13 +9,14 @@ import CustomOrderTimeline from "@/components/custom-orders/CustomOrderTimeline"
 import CustomOrderMessages from "@/components/custom-orders/CustomOrderMessages";
 
 interface CustomOrderDetailProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function CustomOrderDetailPage({ params }: CustomOrderDetailProps) {
   const artisan = await requireArtisanAuth();
+  const { id } = await params;
 
   // Fetch order details
   const [orderData] = await db
@@ -27,7 +28,7 @@ export default async function CustomOrderDetailPage({ params }: CustomOrderDetai
     .leftJoin(customers, eq(customOrders.customerId, customers.id))
     .where(
       and(
-        eq(customOrders.id, parseInt(params.id)),
+        eq(customOrders.id, parseInt(id)),
         eq(customOrders.artisanId, artisan.id)
       )
     )
@@ -38,6 +39,7 @@ export default async function CustomOrderDetailPage({ params }: CustomOrderDetai
   }
 
   const { order, customer } = orderData;
+  const referenceImages = (((order as any)?.referenceImages ?? []) as string[]);
 
   // Fetch messages
   const messages = await db
@@ -92,11 +94,11 @@ export default async function CustomOrderDetailPage({ params }: CustomOrderDetai
               </p>
 
               {/* Reference Images */}
-              {order.referenceImages && order.referenceImages.length > 0 && (
+              {referenceImages && referenceImages.length > 0 && (
                 <div>
                   <h3 className="font-bold mb-3">Reference Images</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {order.referenceImages.map((url, index) => (
+                    {referenceImages.map((url: string, index: number) => (
                       <div key={index} className="relative aspect-square bg-neutral-100 rounded-lg overflow-hidden">
                         <Image src={url} alt={`Reference ${index + 1}`} fill className="object-cover" />
                       </div>
