@@ -36,7 +36,7 @@ export default async function ArtisanPortalManagementPage() {
   const verifiedArtisans = allArtisans.filter(a => a.emailVerified).length;
   const unverifiedArtisans = allArtisans.filter(a => !a.emailVerified).length;
   const activeSessionsCount = activeSessions.length;
-  const pendingOrders = orders.filter(o => o.status === "pending").length;
+  const pendingOrders = orders.filter(o => o.status === "draft" || o.status === "quoted").length;
   const totalProducts = artisanProducts.reduce((sum, ap) => sum + Number(ap.count), 0);
 
   // Recent registrations (last 7 days)
