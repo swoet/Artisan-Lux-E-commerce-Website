@@ -17,10 +17,10 @@ export default async function TradeInsAdminPage() {
     .limit(100);
 
   const statusCounts = {
-    pending: submissions.filter(s => s.tradeIn.status === "pending_review").length,
-    valued: submissions.filter(s => s.tradeIn.status === "valued").length,
+    submitted: submissions.filter(s => s.tradeIn.status === "submitted").length,
+    under_review: submissions.filter(s => s.tradeIn.status === "under_review").length,
+    offer_made: submissions.filter(s => s.tradeIn.status === "offer_made").length,
     accepted: submissions.filter(s => s.tradeIn.status === "accepted").length,
-    shipped: submissions.filter(s => s.tradeIn.status === "shipped").length,
     completed: submissions.filter(s => s.tradeIn.status === "completed").length,
   };
 
@@ -34,20 +34,20 @@ export default async function TradeInsAdminPage() {
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
         <div className="bg-orange-50 rounded-lg shadow p-4">
-          <div className="text-xs text-orange-600 mb-1">Pending Review</div>
-          <div className="text-2xl font-bold text-orange-600">{statusCounts.pending}</div>
+          <div className="text-xs text-orange-600 mb-1">Submitted</div>
+          <div className="text-2xl font-bold text-orange-600">{statusCounts.submitted}</div>
         </div>
         <div className="bg-blue-50 rounded-lg shadow p-4">
-          <div className="text-xs text-blue-600 mb-1">Valued</div>
-          <div className="text-2xl font-bold text-blue-600">{statusCounts.valued}</div>
+          <div className="text-xs text-blue-600 mb-1">Under Review</div>
+          <div className="text-2xl font-bold text-blue-600">{statusCounts.under_review}</div>
         </div>
         <div className="bg-purple-50 rounded-lg shadow p-4">
-          <div className="text-xs text-purple-600 mb-1">Accepted</div>
-          <div className="text-2xl font-bold text-purple-600">{statusCounts.accepted}</div>
+          <div className="text-xs text-purple-600 mb-1">Offer Made</div>
+          <div className="text-2xl font-bold text-purple-600">{statusCounts.offer_made}</div>
         </div>
         <div className="bg-indigo-50 rounded-lg shadow p-4">
-          <div className="text-xs text-indigo-600 mb-1">Shipped</div>
-          <div className="text-2xl font-bold text-indigo-600">{statusCounts.shipped}</div>
+          <div className="text-xs text-indigo-600 mb-1">Accepted</div>
+          <div className="text-2xl font-bold text-indigo-600">{statusCounts.accepted}</div>
         </div>
         <div className="bg-green-50 rounded-lg shadow p-4">
           <div className="text-xs text-green-600 mb-1">Completed</div>
@@ -108,11 +108,12 @@ export default async function TradeInsAdminPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      tradeIn.status === "pending_review" ? "bg-orange-100 text-orange-800" :
-                      tradeIn.status === "valued" ? "bg-blue-100 text-blue-800" :
-                      tradeIn.status === "accepted" ? "bg-purple-100 text-purple-800" :
-                      tradeIn.status === "shipped" ? "bg-indigo-100 text-indigo-800" :
+                      tradeIn.status === "submitted" ? "bg-orange-100 text-orange-800" :
+                      tradeIn.status === "under_review" ? "bg-blue-100 text-blue-800" :
+                      tradeIn.status === "offer_made" ? "bg-purple-100 text-purple-800" :
+                      tradeIn.status === "accepted" ? "bg-indigo-100 text-indigo-800" :
                       tradeIn.status === "completed" ? "bg-green-100 text-green-800" :
+                      tradeIn.status === "rejected" ? "bg-red-100 text-red-800" :
                       "bg-gray-100 text-gray-800"
                     }`}>
                       {tradeIn.status?.replace("_", " ")}

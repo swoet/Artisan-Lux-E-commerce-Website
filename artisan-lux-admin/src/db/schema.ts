@@ -641,9 +641,14 @@ export const tradeIns = pgTable("trade_ins", {
   productId: integer("product_id").references(() => products.id),
   passportId: integer("passport_id").references(() => provenancePassports.id),
   
+  // Customer Info (for non-logged-in users)
+  customerName: varchar("customer_name", { length: 160 }),
+  customerEmail: varchar("customer_email", { length: 160 }),
+  
   // Item Details
   itemDescription: text("item_description").notNull(),
-  condition: varchar("condition", { length: 20 }).$type<"excellent" | "good" | "fair" | "poor">().notNull(),
+  originalPrice: numeric("original_price", { precision: 12, scale: 2 }),
+  condition: varchar("condition", { length: 20 }).$type<"excellent" | "very_good" | "good" | "fair" | "poor">().notNull(),
   photoMediaIds: text("photo_media_ids").array(),
   
   // Valuation
