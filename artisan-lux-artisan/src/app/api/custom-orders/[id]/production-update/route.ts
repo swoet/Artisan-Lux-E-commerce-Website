@@ -7,12 +7,13 @@ import { sendEmail } from "@/lib/email";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const artisan = await requireArtisanAuth();
     const data = await request.json();
     const { stage, notes } = data;
+    const { id } = await params;
 
     // Get order details
     const [order] = await db
@@ -20,7 +21,7 @@ export async function POST(
       .from(customOrders)
       .where(
         and(
-          eq(customOrders.id, parseInt(params.id)),
+          eq(customOrders.id, parseInt(id)),
           eq(customOrders.artisanId, artisan.id)
         )
       )

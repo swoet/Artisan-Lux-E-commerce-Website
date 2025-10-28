@@ -7,12 +7,13 @@ import { sendEmail } from "@/lib/email";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const artisan = await requireArtisanAuth();
     const data = await request.json();
     const { status } = data;
+    const { id } = await params;
 
     const updateData: any = {
       status,
@@ -34,7 +35,7 @@ export async function POST(
       .set(updateData)
       .where(
         and(
-          eq(customOrders.id, parseInt(params.id)),
+          eq(customOrders.id, parseInt(id)),
           eq(customOrders.artisanId, artisan.id)
         )
       )

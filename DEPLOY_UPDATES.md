@@ -134,6 +134,13 @@ CLOUDINARY_API_SECRET=your_api_secret
 → Netlify: Make sure you're using Next.js runtime
 → Vercel: Should work automatically
 
+### "Type error: Route has an invalid export"
+→ **FIXED**: Updated all API routes to use Next.js 15 async params pattern
+→ Changed `{ params: { id: string } }` to `{ params: Promise<{ id: string }> }`
+
+### "sendEmail is not exported"
+→ **FIXED**: Added generic `sendEmail` function to `@/lib/email.ts`
+
 ---
 
 ## 📦 What Gets Deployed

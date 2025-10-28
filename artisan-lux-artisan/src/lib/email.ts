@@ -99,3 +99,21 @@ export async function sendLowStockAlert(data: {
     console.error("Error sending low stock alert:", error);
   }
 }
+
+export async function sendEmail(data: {
+  to: string;
+  subject: string;
+  html: string;
+}) {
+  try {
+    await resend.emails.send({
+      from: "Artisan Lux <noreply@artisanlux.com>",
+      to: data.to,
+      subject: data.subject,
+      html: data.html,
+    });
+  } catch (error) {
+    console.error("Error sending email:", error);
+    throw error;
+  }
+}
