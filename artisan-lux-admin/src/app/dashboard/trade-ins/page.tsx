@@ -3,6 +3,8 @@ import { tradeIns, products, customers } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 import Link from "next/link";
 
+export const dynamic = 'force-dynamic';
+
 export default async function TradeInsAdminPage() {
   const submissions = await db
     .select({
