@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { userGeneratedContent, products, customers } from "@/db/schema";
+import { userContent, products, customers, mediaAssets } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 import Link from "next/link";
 import Image from "next/image";
@@ -7,14 +7,16 @@ import Image from "next/image";
 export default async function UGCModerationPage() {
   const ugcPosts = await db
     .select({
-      ugc: userGeneratedContent,
+      ugc: userContent,
       product: products,
       customer: customers,
+      media: mediaAssets,
     })
-    .from(userGeneratedContent)
-    .leftJoin(products, eq(userGeneratedContent.productId, products.id))
-    .leftJoin(customers, eq(userGeneratedContent.customerId, customers.id))
-    .orderBy(desc(userGeneratedContent.createdAt))
+    .from(userContent)
+    .leftJoin(products, eq(userContent.productId, products.id))
+    .leftJoin(customers, eq(userContent.customerId, customers.id))
+    .leftJoin(mediaAssets, eq(userContent.mediaId, mediaAssets.id))
+    .orderBy(desc(userContent.createdAt))
     .limit(100);
 
   const pendingCount = ugcPosts.filter(p => p.ugc.status === "pending").length;
@@ -53,13 +55,13 @@ export default async function UGCModerationPage() {
         <h2 className="text-xl font-bold mb-6">All Submissions</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {ugcPosts.map(({ ugc, product, customer }) => (
+          {ugcPosts.map(({ ugc, product, customer, media }) => (
             <div key={ugc.id} className="border border-gray-200 rounded-lg overflow-hidden">
               {/* Image */}
               <div className="relative aspect-square bg-gray-100">
-                {ugc.mediaUrl && (
+                {media?.url && (
                   <Image
-                    src={ugc.mediaUrl}
+                    src={media.url}
                     alt={ugc.caption || "UGC"}
                     fill
                     className="object-cover"
