@@ -4,6 +4,8 @@ import { eq, desc } from "drizzle-orm";
 import Link from "next/link";
 import Image from "next/image";
 
+export const dynamic = 'force-dynamic';
+
 export default async function UGCModerationPage() {
   const ugcPosts = await db
     .select({
