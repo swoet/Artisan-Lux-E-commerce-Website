@@ -5,10 +5,11 @@ import { eq } from "drizzle-orm";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const artisanId = parseInt(params.id);
+    const { id } = await context.params;
+    const artisanId = parseInt(id);
     const { reason } = await request.json();
 
     // Get artisan
