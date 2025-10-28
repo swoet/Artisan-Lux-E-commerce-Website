@@ -3,6 +3,8 @@ import { conciergeConversations, customers, conciergeMessages } from "@/db/schem
 import { eq, desc } from "drizzle-orm";
 import Link from "next/link";
 
+export const dynamic = 'force-dynamic';
+
 export default async function ConciergeAdminPage() {
   const conversations = await db
     .select({

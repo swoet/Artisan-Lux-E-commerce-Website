@@ -3,6 +3,8 @@ import { artisans, artisanSessions, customOrders, products, productArtisans } fr
 import { desc, eq, sql, and, gte } from "drizzle-orm";
 import Link from "next/link";
 
+export const dynamic = 'force-dynamic';
+
 export default async function ArtisanPortalManagementPage() {
   // Get all artisans with stats
   const allArtisans = await db

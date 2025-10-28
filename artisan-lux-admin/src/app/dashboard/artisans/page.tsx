@@ -3,6 +3,8 @@ import { artisans } from "@/db/schema";
 import { desc } from "drizzle-orm";
 import Link from "next/link";
 
+export const dynamic = 'force-dynamic';
+
 export default async function ArtisansManagementPage() {
   const allArtisans = await db
     .select()
