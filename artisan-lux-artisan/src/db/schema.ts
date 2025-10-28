@@ -63,3 +63,143 @@ export const artisanSessions = pgTable(
     tokenUnique: uniqueIndex("artisan_sessions_token_unique").on(table.token),
   })
 );
+
+// Minimal shared tables referenced by the portal
+export const customers = pgTable("customers", {
+  id: serial("id").primaryKey(),
+  email: varchar("email", { length: 160 }).notNull(),
+  name: varchar("name", { length: 160 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const mediaAssets = pgTable("media_assets", {
+  id: serial("id").primaryKey(),
+  type: varchar("type", { length: 16 }).notNull(), // image | video | model3d
+  url: text("url").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const categories = pgTable("categories", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 120 }).notNull(),
+  slug: varchar("slug", { length: 160 }).notNull(),
+});
+
+export const products = pgTable("products", {
+  id: serial("id").primaryKey(),
+  title: varchar("title", { length: 200 }).notNull(),
+  slug: varchar("slug", { length: 200 }).notNull(),
+  descriptionRich: text("description_rich"),
+  priceDecimal: numeric("price_decimal", { precision: 12, scale: 2 }).notNull(),
+  categoryId: integer("category_id").references(() => categories.id),
+  coverImageId: integer("cover_image_id").references(() => mediaAssets.id),
+  status: varchar("status", { length: 16 }).$type<"draft" | "published" | "active">().notNull().default("draft"),
+  isFeatured: boolean("is_featured").default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const productArtisans = pgTable("product_artisans", {
+  id: serial("id").primaryKey(),
+  productId: integer("product_id").references(() => products.id).notNull(),
+  artisanId: integer("artisan_id").references(() => artisans.id).notNull(),
+  role: varchar("role", { length: 20 }).notNull().default("creator"),
+  commissionRate: integer("commission_rate").default(70),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const productGallery = pgTable("product_gallery", {
+  id: serial("id").primaryKey(),
+  productId: integer("product_id").references(() => products.id).notNull(),
+  mediaId: integer("media_id").references(() => mediaAssets.id).notNull(),
+  sortOrder: integer("sort_order").default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const provenancePassports = pgTable("provenance_passports", {
+  id: serial("id").primaryKey(),
+  productId: integer("product_id").references(() => products.id).notNull(),
+  serialNumber: varchar("serial_number", { length: 50 }).notNull(),
+  materialsOrigin: text("materials_origin"),
+  artisanNotes: text("artisan_notes"),
+  productionTimeHours: integer("production_time_hours"),
+  careInstructions: text("care_instructions"),
+  carbonFootprint: numeric("carbon_footprint", { precision: 10, scale: 2 }),
+  sustainabilityCertifications: text("sustainability_certifications").array(),
+  warrantyYears: integer("warranty_years").default(1),
+  resaleEligible: boolean("resale_eligible").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const inventory = pgTable("inventory", {
+  id: serial("id").primaryKey(),
+  productId: integer("product_id").references(() => products.id).notNull(),
+  quantityInStock: integer("quantity_in_stock").notNull().default(0),
+  lowStockThreshold: integer("low_stock_threshold").notNull().default(5),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const orders = pgTable("orders", {
+  id: serial("id").primaryKey(),
+  total: numeric("total", { precision: 12, scale: 2 }).notNull().default("0.00"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const orderItems = pgTable("order_items", {
+  id: serial("id").primaryKey(),
+  orderId: integer("order_id").references(() => orders.id).notNull(),
+  productId: integer("product_id").references(() => products.id).notNull(),
+});
+
+// Custom orders used in the portal
+export const customOrders = pgTable("custom_orders", {
+  id: serial("id").primaryKey(),
+  artisanId: integer("artisan_id").references(() => artisans.id),
+  customerId: integer("customer_id").references(() => customers.id),
+  customerEmail: varchar("customer_email", { length: 160 }),
+  baseProductId: integer("base_product_id").references(() => products.id),
+  title: varchar("title", { length: 200 }),
+  description: text("description"),
+  budgetMin: numeric("budget_min", { precision: 12, scale: 2 }),
+  budgetMax: numeric("budget_max", { precision: 12, scale: 2 }),
+  desiredCompletionDate: timestamp("desired_completion_date"),
+  preferredMaterials: text("preferred_materials").array(),
+  quotedPrice: numeric("quoted_price", { precision: 12, scale: 2 }),
+  estimatedCompletionDate: timestamp("estimated_completion_date"),
+  quoteNotes: text("quote_notes"),
+  totalPrice: numeric("total_price", { precision: 12, scale: 2 }),
+  status: varchar("status", { length: 20 }).$type<
+    | "pending"
+    | "draft"
+    | "quoted"
+    | "accepted"
+    | "in_production"
+    | "completed"
+    | "delivered"
+    | "cancelled"
+  >().default("pending"),
+  acceptedAt: timestamp("accepted_at"),
+  completedAt: timestamp("completed_at"),
+  deliveredAt: timestamp("delivered_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const customOrderMessages = pgTable("custom_order_messages", {
+  id: serial("id").primaryKey(),
+  customOrderId: integer("custom_order_id").references(() => customOrders.id).notNull(),
+  senderId: integer("sender_id").notNull(),
+  senderType: varchar("sender_type", { length: 20 }).notNull(), // artisan | customer
+  message: text("message").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const customOrderProductionStages = pgTable("custom_order_production_stages", {
+  id: serial("id").primaryKey(),
+  customOrderId: integer("custom_order_id").references(() => customOrders.id).notNull(),
+  stage: varchar("stage", { length: 50 }).notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
