@@ -5,5 +5,8 @@
 **/drizzle/*.sql
 **/.DS_Store
 
+# Disallow Warp metadata
+WARP.md
+
 # Local Netlify folder
 .netlify
