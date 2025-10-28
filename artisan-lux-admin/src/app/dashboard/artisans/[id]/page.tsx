@@ -82,7 +82,7 @@ export default async function ArtisanDetailPage({ params }: { params: { id: stri
             📧 Email Not Verified
           </h3>
           <p className="text-yellow-700">
-            This artisan has registered but hasn't verified their email yet.
+            This artisan has registered but hasn&apos;t verified their email yet.
           </p>
         </div>
       )}
@@ -93,7 +93,7 @@ export default async function ArtisanDetailPage({ params }: { params: { id: stri
             ✅ Active Account
           </h3>
           <p className="text-green-700">
-            This artisan's account is active and they can access the artisan portal.
+            This artisan&apos;s account is active and they can access the artisan portal.
           </p>
         </div>
       )}
