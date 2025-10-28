@@ -409,11 +409,18 @@ export const customOrders = pgTable("custom_orders", {
   artisanId: integer("artisan_id").references(() => artisans.id),
   baseProductId: integer("base_product_id").references(() => products.id),
   
+  // Order Details
+  title: varchar("title", { length: 255 }),
+  description: text("description"),
+  customerName: varchar("customer_name", { length: 160 }),
+  
   // Customization Details
   customizationData: text("customization_data").notNull(), // JSON: {material: "Gold", size: "M", engraving: "..."}
   customerNotes: text("customer_notes"),
   
   // Pricing
+  budgetMin: numeric("budget_min", { precision: 12, scale: 2 }),
+  budgetMax: numeric("budget_max", { precision: 12, scale: 2 }),
   basePrice: numeric("base_price", { precision: 12, scale: 2 }).notNull(),
   customizationPrice: numeric("customization_price", { precision: 12, scale: 2 }).default("0.00"),
   totalPrice: numeric("total_price", { precision: 12, scale: 2 }).notNull(),

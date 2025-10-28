@@ -17,9 +17,9 @@ export default async function CustomOrdersAdminPage() {
     .limit(100);
 
   const statusCounts = {
-    pending: orders.filter(o => o.order.status === "pending").length,
+    draft: orders.filter(o => o.order.status === "draft").length,
     quoted: orders.filter(o => o.order.status === "quoted").length,
-    accepted: orders.filter(o => o.order.status === "accepted").length,
+    approved: orders.filter(o => o.order.status === "approved").length,
     in_production: orders.filter(o => o.order.status === "in_production").length,
     completed: orders.filter(o => o.order.status === "completed").length,
   };
@@ -34,16 +34,16 @@ export default async function CustomOrdersAdminPage() {
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
         <div className="bg-orange-50 rounded-lg shadow p-4">
-          <div className="text-xs text-orange-600 mb-1">Pending</div>
-          <div className="text-2xl font-bold text-orange-600">{statusCounts.pending}</div>
+          <div className="text-xs text-orange-600 mb-1">Draft</div>
+          <div className="text-2xl font-bold text-orange-600">{statusCounts.draft}</div>
         </div>
         <div className="bg-blue-50 rounded-lg shadow p-4">
           <div className="text-xs text-blue-600 mb-1">Quoted</div>
           <div className="text-2xl font-bold text-blue-600">{statusCounts.quoted}</div>
         </div>
         <div className="bg-purple-50 rounded-lg shadow p-4">
-          <div className="text-xs text-purple-600 mb-1">Accepted</div>
-          <div className="text-2xl font-bold text-purple-600">{statusCounts.accepted}</div>
+          <div className="text-xs text-purple-600 mb-1">Approved</div>
+          <div className="text-2xl font-bold text-purple-600">{statusCounts.approved}</div>
         </div>
         <div className="bg-indigo-50 rounded-lg shadow p-4">
           <div className="text-xs text-indigo-600 mb-1">In Production</div>
@@ -96,11 +96,12 @@ export default async function CustomOrdersAdminPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      order.status === "pending" ? "bg-orange-100 text-orange-800" :
+                      order.status === "draft" ? "bg-orange-100 text-orange-800" :
                       order.status === "quoted" ? "bg-blue-100 text-blue-800" :
-                      order.status === "accepted" ? "bg-purple-100 text-purple-800" :
+                      order.status === "approved" ? "bg-purple-100 text-purple-800" :
                       order.status === "in_production" ? "bg-indigo-100 text-indigo-800" :
                       order.status === "completed" ? "bg-green-100 text-green-800" :
+                      order.status === "cancelled" ? "bg-red-100 text-red-800" :
                       "bg-gray-100 text-gray-800"
                     }`}>
                       {order.status?.replace("_", " ")}
