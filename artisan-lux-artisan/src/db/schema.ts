@@ -169,6 +169,7 @@ export const customOrders = pgTable("custom_orders", {
   quotedPrice: numeric("quoted_price", { precision: 12, scale: 2 }),
   estimatedCompletionDate: timestamp("estimated_completion_date"),
   quoteNotes: text("quote_notes"),
+  quotedAt: timestamp("quoted_at"),
   totalPrice: numeric("total_price", { precision: 12, scale: 2 }),
   status: varchar("status", { length: 20 }).$type<
     | "pending"
@@ -181,6 +182,7 @@ export const customOrders = pgTable("custom_orders", {
     | "cancelled"
   >().default("pending"),
   acceptedAt: timestamp("accepted_at"),
+  productionStartedAt: timestamp("production_started_at"),
   completedAt: timestamp("completed_at"),
   deliveredAt: timestamp("delivered_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),

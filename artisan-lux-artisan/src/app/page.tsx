@@ -11,7 +11,7 @@ export default async function DashboardPage() {
   const [stats] = await db
     .select({
       totalProducts: sql<number>`count(distinct ${products.id})`,
-      activeOrders: sql<number>`count(distinct case when ${customOrders.status} in ('approved', 'in_production') then ${customOrders.id} end)`,
+      activeOrders: sql<number>`count(distinct case when ${customOrders.status} in ('accepted', 'in_production') then ${customOrders.id} end)`,
       pendingQuotes: sql<number>`count(distinct case when ${customOrders.status} = 'draft' then ${customOrders.id} end)`,
       totalSales: sql<string>`coalesce(sum(${orders.total}), 0)`,
     })
@@ -134,7 +134,7 @@ export default async function DashboardPage() {
                   </div>
                   <div className="flex items-center gap-4">
                     <span className={`badge ${
-                      order.status === "approved" || order.status === "in_production" ? "badge-success" :
+                      order.status === "accepted" || order.status === "in_production" ? "badge-success" :
                       order.status === "draft" ? "badge-warning" :
                       order.status === "completed" ? "badge-info" :
                       "badge-error"

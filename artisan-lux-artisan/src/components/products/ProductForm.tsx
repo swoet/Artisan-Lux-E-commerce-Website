@@ -38,7 +38,7 @@ export default function ProductForm({ artisan, categories, product }: ProductFor
   const [status, setStatus] = useState(product?.status || "draft");
 
   // Provenance Passport fields
-  const [createPassport, setCreatePassport] = useState(!!product?.passport || true);
+  const [createPassport, setCreatePassport] = useState<boolean>(!!product?.passport || true);
   const [materialsOrigin, setMaterialsOrigin] = useState(product?.passport?.materialsOrigin || "");
   const [materialsDescription, setMaterialsDescription] = useState(product?.passport?.materialsDescription || "");
   const [productionTime, setProductionTime] = useState(product?.passport?.productionTime || "");
