@@ -14,7 +14,14 @@ export default async function GalleryPage() {
   const ugcPosts = await db
     .select({
       ugc: userContent,
-      product: products,
+      product: {
+        id: products.id,
+        title: products.title,
+        slug: products.slug,
+        priceDecimal: products.priceDecimal,
+        currency: products.currency,
+        coverImageId: products.coverImageId,
+      },
       customer: customers,
       media: mediaAssets,
     })
