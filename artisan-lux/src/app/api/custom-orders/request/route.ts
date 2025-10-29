@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { customOrders, artisans } from "@/db/schema";
+import { customOrders, artisans, customers } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 export async function POST(request: NextRequest) {
@@ -41,23 +41,43 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create custom order
+    // Find or create customer by email
+    let [customer] = await db
+      .select()
+      .from(customers)
+      .where(eq(customers.email, customerEmail))
+      .limit(1);
+
+    if (!customer) {
+      const [created] = await db
+        .insert(customers)
+        .values({ email: customerEmail, name: customerName })
+        .returning();
+      customer = created;
+    }
+
+    const basePriceNum = Number(budgetMin || 0);
+    const totalPriceNum = Number(budgetMax || 0);
+
+    // Create custom order (schema-compliant fields)
     const [newOrder] = await db
       .insert(customOrders)
       .values({
+        customerId: customer.id,
         artisanId,
-        title,
-        description,
-        budgetMin: budgetMin.toString(),
-        budgetMax: budgetMax.toString(),
-        desiredCompletionDate: desiredCompletionDate ? new Date(desiredCompletionDate) : null,
-        preferredMaterials: preferredMaterials || [],
-        referenceImages: referenceImages || [],
-        customerName,
-        customerEmail,
-        status: "pending",
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        customizationData: JSON.stringify({
+          title,
+          description,
+          preferredMaterials: preferredMaterials || [],
+          referenceImages: referenceImages || [],
+        }),
+        customerNotes: `Desired completion: ${desiredCompletionDate || "n/a"}`,
+        basePrice: basePriceNum.toFixed(2),
+        customizationPrice: "0.00",
+        totalPrice: totalPriceNum.toFixed(2),
+        // currency omitted to use default 'USD'
+        estimatedCompletionDate: desiredCompletionDate ? new Date(desiredCompletionDate) : null,
+        status: "draft",
       })
       .returning();
 

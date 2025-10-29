@@ -185,7 +185,6 @@ export default async function PassportPage({ params }: PassportPageProps) {
                 <p className="text-neutral-700">{passport.materialsOrigin}</p>
               </div>
             )}
-            {/* Materials description not available in schema */}
             {passport.productionTimeHours && (
               <div>
                 <h3 className="font-bold mb-2 flex items-center gap-2">
