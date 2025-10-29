@@ -1,5 +1,5 @@
 [build]
-  command = "npm ci --include=dev && npm run build"
+  command = "rm -rf node_modules && npm install --include=dev && npm run build"
   publish = ".next"
 
 [[plugins]]
