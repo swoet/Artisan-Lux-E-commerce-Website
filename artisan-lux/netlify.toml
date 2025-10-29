@@ -1,5 +1,5 @@
 [build]
-  command = "rm -rf node_modules && npm install --include=dev && npm run build"
+  command = "rm -rf node_modules && npm cache clean --force && npm install --include=dev && npm rebuild lightningcss && npm run build"
   publish = ".next"
 
 [[plugins]]
@@ -9,6 +9,8 @@
   NODE_VERSION = "20"
   NPM_FLAGS = "--legacy-peer-deps"
   LIGHTNINGCSS_IGNORE_NATIVE = "1"
+  TAILWIND_DISABLE_NATIVE = "1"
+  TAILWIND_DISABLE_OXIDE = "1"
 
 # Headers for security
 [[headers]]
