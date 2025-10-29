@@ -1,5 +1,5 @@
 [build]
-  command = "rm -rf node_modules && npm cache clean --force && npm install --include=dev && npm rebuild lightningcss && npm run build"
+  command = "rm -rf node_modules && npm cache clean --force && npm install --include=dev && npm run build"
   publish = ".next"
 
 [[plugins]]
