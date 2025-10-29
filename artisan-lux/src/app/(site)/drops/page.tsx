@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { drops, products, artisans } from "@/db/schema";
+import { drops, mediaAssets } from "@/db/schema";
 import { eq, gte } from "drizzle-orm";
 import Link from "next/link";
 import Image from "next/image";
@@ -17,12 +17,10 @@ export default async function DropsPage() {
   const upcomingDrops = await db
     .select({
       drop: drops,
-      product: products,
-      artisan: artisans,
+      cover: mediaAssets,
     })
     .from(drops)
-    .innerJoin(products, eq(drops.productId, products.id))
-    .leftJoin(artisans, eq(drops.artisanId, artisans.id))
+    .leftJoin(mediaAssets, eq(drops.coverMediaId, mediaAssets.id))
     .where(gte(drops.dropDate, now))
     .orderBy(drops.dropDate);
 
@@ -30,13 +28,11 @@ export default async function DropsPage() {
   const activeDrops = await db
     .select({
       drop: drops,
-      product: products,
-      artisan: artisans,
+      cover: mediaAssets,
     })
     .from(drops)
-    .innerJoin(products, eq(drops.productId, products.id))
-    .leftJoin(artisans, eq(drops.artisanId, artisans.id))
-    .where(eq(drops.status, "active"));
+    .leftJoin(mediaAssets, eq(drops.coverMediaId, mediaAssets.id))
+    .where(eq(drops.status, "live"));
 
   return (
     <div className="min-h-screen bg-neutral-50">
@@ -59,10 +55,10 @@ export default async function DropsPage() {
           <div className="mb-12">
             <h2 className="text-3xl font-serif font-bold mb-6">Live Now 🔥</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {activeDrops.map(({ drop, product, artisan }) => (
+              {activeDrops.map(({ drop, cover }) => (
                 <Link
                   key={drop.id}
-                  href={`/product/${product.slug}`}
+                  href="/categories"
                   className="card hover:shadow-xl transition-shadow relative overflow-hidden"
                 >
                   {/* Live Badge */}
@@ -72,30 +68,19 @@ export default async function DropsPage() {
 
                   {/* Product Image */}
                   <div className="relative w-full h-64 bg-neutral-100 rounded-lg mb-4 overflow-hidden">
-                    {product.coverImageId ? (
-                      <div className="flex items-center justify-center h-full text-neutral-400">
-                        Product Image
-                      </div>
+                    {cover?.url ? (
+                      <Image src={cover.url} alt={drop.name} fill className="object-cover" />
                     ) : (
-                      <div className="flex items-center justify-center h-full text-neutral-400">
-                        No Image
-                      </div>
+                      <div className="flex items-center justify-center h-full text-neutral-400">No Image</div>
                     )}
                   </div>
 
                   {/* Product Info */}
-                  <h3 className="font-serif font-bold text-xl mb-2">{product.title}</h3>
-                  {artisan && (
-                    <p className="text-sm text-neutral-600 mb-3">by {artisan.name}</p>
-                  )}
+                  <h3 className="font-serif font-bold text-xl mb-2">{drop.name}</h3>
                   
                   <div className="flex items-center justify-between mb-3">
-                    <div className="text-2xl font-bold text-brand-dark-wood">
-                      ${parseFloat(product.priceDecimal).toFixed(2)}
-                    </div>
-                    <div className="text-sm text-neutral-600">
-                      {drop.quantityAvailable} available
-                    </div>
+                    <div className="text-sm text-neutral-600">{(drop.productIds || []).length} products</div>
+                    <div className="text-xs text-neutral-500">Live</div>
                   </div>
 
                   <div className="btn btn-primary w-full justify-center">
@@ -112,13 +97,13 @@ export default async function DropsPage() {
           <div>
             <h2 className="text-3xl font-serif font-bold mb-6">Coming Soon</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {upcomingDrops.map(({ drop, product, artisan }) => (
+              {upcomingDrops.map(({ drop, cover }) => (
                 <div
                   key={drop.id}
                   className="card relative overflow-hidden"
                 >
                   {/* VIP Badge */}
-                  {drop.vipEarlyAccess && (
+                  {drop.accessType === "vip_only" && (
                     <div className="absolute top-4 right-4 bg-brand-metallic text-white text-xs px-3 py-1 rounded-full z-10">
                       VIP Early Access
                     </div>
@@ -126,24 +111,23 @@ export default async function DropsPage() {
 
                   {/* Product Image */}
                   <div className="relative w-full h-64 bg-neutral-100 rounded-lg mb-4 overflow-hidden opacity-75">
-                    <div className="flex items-center justify-center h-full text-neutral-400">
-                      Coming Soon
-                    </div>
+                    {cover?.url ? (
+                      <Image src={cover.url} alt={drop.name} fill className="object-cover opacity-50" />
+                    ) : (
+                      <div className="flex items-center justify-center h-full text-neutral-400">Coming Soon</div>
+                    )}
                   </div>
 
                   {/* Product Info */}
-                  <h3 className="font-serif font-bold text-xl mb-2">{product.title}</h3>
-                  {artisan && (
-                    <p className="text-sm text-neutral-600 mb-3">by {artisan.name}</p>
-                  )}
+                  <h3 className="font-serif font-bold text-xl mb-2">{drop.name}</h3>
                   
                   <div className="mb-4">
                     <DropCountdown dropDate={drop.dropDate} />
                   </div>
 
                   <div className="flex items-center justify-between text-sm text-neutral-600">
-                    <span>{drop.quantityAvailable} pieces</span>
-                    <span>${parseFloat(product.priceDecimal).toFixed(2)}</span>
+                    <span>{(drop.productIds || []).length} products</span>
+                    <span>{new Date(drop.dropDate).toLocaleDateString()}</span>
                   </div>
                 </div>
               ))}
