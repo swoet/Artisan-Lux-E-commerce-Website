@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { provenancePassports, products, artisans, productArtisans, ownershipHistory, serviceHistory } from "@/db/schema";
+import { provenancePassports, products, artisans, productArtisans, ownershipHistory, serviceHistory, mediaAssets } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Image from "next/image";
@@ -35,17 +35,19 @@ export async function generateMetadata({ params }: PassportPageProps) {
 }
 
 export default async function PassportPage({ params }: PassportPageProps) {
-  // Fetch passport with product and artisan details
+  // Fetch passport with product and artisan details + product cover image
   const [passportData] = await db
     .select({
       passport: provenancePassports,
       product: products,
       artisan: artisans,
+      productCover: mediaAssets,
     })
     .from(provenancePassports)
     .innerJoin(products, eq(provenancePassports.productId, products.id))
     .innerJoin(productArtisans, eq(products.id, productArtisans.productId))
     .innerJoin(artisans, eq(productArtisans.artisanId, artisans.id))
+    .leftJoin(mediaAssets, eq(products.coverImageId, mediaAssets.id))
     .where(eq(provenancePassports.serialNumber, params.serialNumber))
     .limit(1);
 
@@ -53,14 +55,14 @@ export default async function PassportPage({ params }: PassportPageProps) {
     notFound();
   }
 
-  const { passport, product, artisan } = passportData;
+  const { passport, product, artisan, productCover } = passportData;
 
   // Fetch ownership history
   const ownership = await db
     .select()
     .from(ownershipHistory)
     .where(eq(ownershipHistory.passportId, passport.id))
-    .orderBy(ownershipHistory.transferredAt);
+    .orderBy(ownershipHistory.transferDate);
 
   // Fetch service history
   const services = await db
@@ -88,9 +90,9 @@ export default async function PassportPage({ params }: PassportPageProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Product Image */}
             <div className="relative aspect-square bg-neutral-100 rounded-lg overflow-hidden">
-              {product.images && product.images.length > 0 ? (
+              {productCover?.url ? (
                 <Image
-                  src={product.images[0]}
+                  src={productCover.url}
                   alt={product.title}
                   fill
                   className="object-cover"
@@ -105,12 +107,11 @@ export default async function PassportPage({ params }: PassportPageProps) {
             {/* Product Info */}
             <div>
               <h2 className="text-2xl font-serif font-bold mb-4">{product.title}</h2>
-              <p className="text-neutral-700 mb-6">{product.description}</p>
               
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between">
                   <span className="text-neutral-600">Price</span>
-                  <span className="font-bold">${product.price}</span>
+                  <span className="font-bold">${Number(product.priceDecimal ?? 0).toFixed(2)} {product.currency}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-neutral-600">Created</span>
@@ -138,13 +139,9 @@ export default async function PassportPage({ params }: PassportPageProps) {
           <h2 className="text-2xl font-serif font-bold mb-6">Meet the Artisan</h2>
           <div className="flex items-start gap-4">
             <div className="relative w-16 h-16 rounded-full overflow-hidden bg-neutral-100 flex-shrink-0">
-              {artisan.avatar ? (
-                <Image src={artisan.avatar} alt={artisan.name} fill className="object-cover" />
-              ) : (
-                <div className="flex items-center justify-center h-full text-2xl text-brand-dark-wood">
-                  {artisan.name.charAt(0)}
-                </div>
-              )}
+              <div className="flex items-center justify-center h-full text-2xl text-brand-dark-wood">
+                {artisan.name.charAt(0)}
+              </div>
             </div>
             <div className="flex-1">
               <h3 className="font-bold text-lg mb-1">{artisan.name}</h3>
@@ -188,20 +185,13 @@ export default async function PassportPage({ params }: PassportPageProps) {
                 <p className="text-neutral-700">{passport.materialsOrigin}</p>
               </div>
             )}
-            {passport.materialsDescription && (
-              <div>
-                <h3 className="font-bold mb-2 flex items-center gap-2">
-                  <span>🧵</span> Materials
-                </h3>
-                <p className="text-neutral-700">{passport.materialsDescription}</p>
-              </div>
-            )}
-            {passport.productionTime && (
+            {/* Materials description not available in schema */}
+            {passport.productionTimeHours && (
               <div>
                 <h3 className="font-bold mb-2 flex items-center gap-2">
                   <span>⏱️</span> Production Time
                 </h3>
-                <p className="text-neutral-700">{passport.productionTime} hours</p>
+                <p className="text-neutral-700">{passport.productionTimeHours} hours</p>
               </div>
             )}
             {passport.carbonFootprint && (
@@ -214,11 +204,11 @@ export default async function PassportPage({ params }: PassportPageProps) {
             )}
           </div>
 
-          {passport.certifications && passport.certifications.length > 0 && (
+          {passport.sustainabilityCertifications && passport.sustainabilityCertifications.length > 0 && (
             <div className="mt-6">
               <h3 className="font-bold mb-3">Certifications</h3>
               <div className="flex flex-wrap gap-2">
-                {passport.certifications.map((cert, index) => (
+                {passport.sustainabilityCertifications.map((cert, index) => (
                   <span key={index} className="badge badge-success">
                     ✓ {cert}
                   </span>
@@ -251,12 +241,12 @@ export default async function PassportPage({ params }: PassportPageProps) {
                     {index + 1}
                   </div>
                   <div className="flex-1">
-                    <div className="font-medium">{record.ownerName || "Anonymous Owner"}</div>
+                    <div className="font-medium">Ownership transfer {record.transferType ? `(${record.transferType})` : ""}</div>
                     <div className="text-sm text-neutral-600">
-                      {new Date(record.transferredAt).toLocaleDateString()}
+                      {new Date(record.transferDate).toLocaleDateString()}
                     </div>
-                    {record.notes && (
-                      <p className="text-sm text-neutral-700 mt-1">{record.notes}</p>
+                    {record.transferPrice && (
+                      <p className="text-sm text-neutral-700 mt-1">Price: ${record.transferPrice}</p>
                     )}
                   </div>
                 </div>
