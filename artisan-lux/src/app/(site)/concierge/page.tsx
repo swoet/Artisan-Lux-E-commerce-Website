@@ -10,7 +10,8 @@ export const metadata = {
 
 // This would normally get the customer from session
 // For now, we'll use a placeholder
-async function getCurrentCustomer() {
+type CurrentCustomer = { id: number };
+async function getCurrentCustomer(): Promise<CurrentCustomer | null> {
   // TODO: Implement proper session-based customer retrieval
   return null;
 }
