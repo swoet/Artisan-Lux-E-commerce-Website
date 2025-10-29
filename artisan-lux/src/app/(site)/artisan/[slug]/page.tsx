@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { artisans, products, productArtisans, categories } from "@/db/schema";
+import { artisans, products, productArtisans, categories, mediaAssets } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Image from "next/image";
@@ -31,35 +31,40 @@ export async function generateMetadata({ params }: ArtisanPageProps) {
 }
 
 export default async function ArtisanPage({ params }: ArtisanPageProps) {
-  // Fetch artisan details
-  const [artisan] = await db
-    .select()
+  // Fetch artisan details with cover media joined
+  const [row] = await db
+    .select({ artisan: artisans, cover: mediaAssets })
     .from(artisans)
+    .leftJoin(mediaAssets, eq(artisans.coverMediaId, mediaAssets.id))
     .where(eq(artisans.slug, params.slug))
     .limit(1);
 
-  if (!artisan) {
+  if (!row?.artisan) {
     notFound();
   }
+  const artisan = row.artisan;
+  const artisanCover = row.cover;
 
   // Fetch artisan's products
   const artisanProducts = await db
     .select({
       product: products,
       category: categories,
+      cover: mediaAssets,
     })
     .from(products)
     .innerJoin(productArtisans, eq(products.id, productArtisans.productId))
     .leftJoin(categories, eq(products.categoryId, categories.id))
+    .leftJoin(mediaAssets, eq(products.coverImageId, mediaAssets.id))
     .where(eq(productArtisans.artisanId, artisan.id));
 
   return (
     <div className="min-h-screen bg-neutral-50">
       {/* Hero Section */}
       <div className="relative h-64 bg-gradient-to-br from-brand-dark-wood to-brand-metallic">
-        {artisan.coverImage && (
+        {artisanCover?.url && (
           <Image
-            src={artisan.coverImage}
+            src={artisanCover.url}
             alt={artisan.name}
             fill
             className="object-cover opacity-30"
@@ -153,7 +158,7 @@ export default async function ArtisanPage({ params }: ArtisanPageProps) {
                 {artisan.rating && (
                   <div className="flex justify-between">
                     <span className="text-neutral-600">Rating</span>
-                    <span className="font-bold">⭐ {artisan.rating.toFixed(1)}</span>
+                    <span className="font-bold">⭐ {Number(artisan.rating).toFixed(1)}</span>
                   </div>
                 )}
               </div>
@@ -176,7 +181,7 @@ export default async function ArtisanPage({ params }: ArtisanPageProps) {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {artisanProducts.map(({ product, category }) => (
+                {artisanProducts.map(({ product, category, cover }) => (
                   <Link
                     key={product.id}
                     href={`/product/${product.slug}`}
@@ -184,9 +189,9 @@ export default async function ArtisanPage({ params }: ArtisanPageProps) {
                   >
                     {/* Product Image */}
                     <div className="relative w-full h-64 bg-neutral-100 rounded-lg mb-4 overflow-hidden">
-                      {product.images && product.images.length > 0 ? (
+                      {cover?.url ? (
                         <Image
-                          src={product.images[0]}
+                          src={cover.url}
                           alt={product.title}
                           fill
                           className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -208,7 +213,7 @@ export default async function ArtisanPage({ params }: ArtisanPageProps) {
                     </h3>
                     <p className="text-sm text-neutral-600 mb-3">{category?.name}</p>
                     <div className="text-xl font-bold text-brand-dark-wood">
-                      ${product.price}
+                      ${Number(product.priceDecimal).toLocaleString()}
                     </div>
                   </Link>
                 ))}

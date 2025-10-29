@@ -1,6 +1,6 @@
 import { db } from "@/db";
-import { vipTiers, vipBenefits } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { vipTiers } from "@/db/schema";
+import { asc } from "drizzle-orm";
 import Link from "next/link";
 
 export const metadata = {
@@ -9,26 +9,11 @@ export const metadata = {
 };
 
 export default async function VIPPage() {
-  // Fetch all VIP tiers with their benefits
+  // Fetch all VIP tiers; benefits are stored on the tier as an array
   const tiers = await db
-    .select({
-      tier: vipTiers,
-    })
+    .select()
     .from(vipTiers)
-    .where(eq(vipTiers.isActive, true))
-    .orderBy(vipTiers.annualSpendThreshold);
-
-  // Fetch benefits for each tier
-  const tiersWithBenefits = await Promise.all(
-    tiers.map(async ({ tier }) => {
-      const benefits = await db
-        .select()
-        .from(vipBenefits)
-        .where(eq(vipBenefits.tierId, tier.id));
-      
-      return { tier, benefits };
-    })
-  );
+    .orderBy(asc(vipTiers.priority));
 
   return (
     <div className="min-h-screen bg-neutral-50">
@@ -48,7 +33,7 @@ export default async function VIPPage() {
       {/* Tiers */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {tiersWithBenefits.map(({ tier, benefits }, index) => {
+          {tiers.map((tier, index) => {
             const isPopular = index === 1; // Middle tier is popular
             
             return (
@@ -67,25 +52,19 @@ export default async function VIPPage() {
                 {/* Tier Header */}
                 <div className="text-center mb-6 pb-6 border-b border-neutral-200">
                   <h3 className="text-2xl font-serif font-bold mb-2">{tier.name}</h3>
-                  {tier.description && (
-                    <p className="text-sm text-neutral-600 mb-4">{tier.description}</p>
-                  )}
                   <div className="text-4xl font-bold text-brand-dark-wood mb-2">
-                    ${tier.annualSpendThreshold?.toLocaleString() || "0"}
+                    ${Number(tier.minSpend || 0).toLocaleString()}
                   </div>
                   <div className="text-sm text-neutral-600">annual spend</div>
                 </div>
 
                 {/* Benefits */}
                 <div className="space-y-3 mb-6">
-                  {benefits.map((benefit) => (
-                    <div key={benefit.id} className="flex items-start gap-2">
+                  {(tier.benefits || []).map((benefit, i) => (
+                    <div key={i} className="flex items-start gap-2">
                       <div className="text-green-600 mt-1">✓</div>
                       <div className="flex-1">
-                        <div className="font-medium text-sm">{benefit.name}</div>
-                        {benefit.description && (
-                          <div className="text-xs text-neutral-600">{benefit.description}</div>
-                        )}
+                        <div className="font-medium text-sm">{benefit}</div>
                       </div>
                     </div>
                   ))}

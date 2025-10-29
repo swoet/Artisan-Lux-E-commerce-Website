@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { userGeneratedContent, products, customers } from "@/db/schema";
+import { userContent, products, customers, mediaAssets } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 import Link from "next/link";
 import Image from "next/image";
@@ -13,15 +13,17 @@ export default async function GalleryPage() {
   // Fetch approved UGC with product and customer info
   const ugcPosts = await db
     .select({
-      ugc: userGeneratedContent,
+      ugc: userContent,
       product: products,
       customer: customers,
+      media: mediaAssets,
     })
-    .from(userGeneratedContent)
-    .leftJoin(products, eq(userGeneratedContent.productId, products.id))
-    .leftJoin(customers, eq(userGeneratedContent.customerId, customers.id))
-    .where(eq(userGeneratedContent.status, "approved"))
-    .orderBy(desc(userGeneratedContent.createdAt))
+    .from(userContent)
+    .leftJoin(products, eq(userContent.productId, products.id))
+    .leftJoin(customers, eq(userContent.customerId, customers.id))
+    .leftJoin(mediaAssets, eq(userContent.mediaId, mediaAssets.id))
+    .where(eq(userContent.status, "approved"))
+    .orderBy(desc(userContent.createdAt))
     .limit(50);
 
   return (
@@ -70,15 +72,15 @@ export default async function GalleryPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {ugcPosts.map(({ ugc, product, customer }) => (
+            {ugcPosts.map(({ ugc, product, customer, media }) => (
               <div
                 key={ugc.id}
                 className="group relative aspect-square bg-neutral-100 rounded-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
               >
                 {/* Image */}
-                {ugc.mediaUrl && (
+                {media?.url && (
                   <Image
-                    src={ugc.mediaUrl}
+                    src={media.url}
                     alt={ugc.caption || "Customer photo"}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -112,10 +114,10 @@ export default async function GalleryPage() {
                   </div>
                 </div>
 
-                {/* Reward Badge */}
-                {ugc.rewardPointsAwarded && ugc.rewardPointsAwarded > 0 && (
+                {/* Likes Badge */}
+                {typeof ugc.likes === "number" && ugc.likes > 0 && (
                   <div className="absolute top-2 right-2 bg-brand-metallic text-white text-xs px-2 py-1 rounded-full">
-                    +{ugc.rewardPointsAwarded} pts
+                    ❤️ {ugc.likes}
                   </div>
                 )}
               </div>
