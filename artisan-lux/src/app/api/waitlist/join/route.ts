@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { waitlists, products } from "@/db/schema";
+import { waitlists, products, customers } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 
 export async function POST(request: NextRequest) {
@@ -29,6 +29,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Find or create customer
+    let [customer] = await db
+      .select()
+      .from(customers)
+      .where(eq(customers.email, email))
+      .limit(1);
+
+    if (!customer) {
+      const [created] = await db
+        .insert(customers)
+        .values({ email, name })
+        .returning();
+      customer = created;
+    }
+
     // Check if already on waitlist
     const existing = await db
       .select()
@@ -36,7 +51,7 @@ export async function POST(request: NextRequest) {
       .where(
         and(
           eq(waitlists.productId, productId),
-          eq(waitlists.email, email)
+          eq(waitlists.customerId, customer.id)
         )
       )
       .limit(1);
@@ -53,10 +68,7 @@ export async function POST(request: NextRequest) {
       .insert(waitlists)
       .values({
         productId,
-        email,
-        name,
-        status: "active",
-        createdAt: new Date(),
+        customerId: customer.id,
       })
       .returning();
 
