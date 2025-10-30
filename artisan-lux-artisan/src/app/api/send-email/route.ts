@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { data, error } = await resend.emails.send({
-      from: "Artisan Lux <noreply@artisanlux.com>",
+      from: "Artisan Lux <no-reply@artisan-lux.com>",
       to: [to],
       subject,
       html,
