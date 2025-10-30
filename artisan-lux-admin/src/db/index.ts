@@ -15,7 +15,8 @@ declare global {
 
 // Prefer Vercel Postgres pooled driver when available to avoid connection storms
 function shouldUseVercelDriver() {
-  return !!process.env.POSTGRES_URL || !!process.env.POSTGRES_PRISMA_URL || !!process.env.VERCEL;
+  // Use Vercel pooled driver ONLY when the required env is present
+  return !!process.env.POSTGRES_URL;
 }
 
 let db: ReturnType<typeof drizzleNode> | ReturnType<typeof drizzleVercel>;
