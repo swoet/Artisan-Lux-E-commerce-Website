@@ -153,43 +153,56 @@ export const orderItems = pgTable("order_items", {
   productId: integer("product_id").references(() => products.id).notNull(),
 });
 
-// Custom orders used in the portal
-export const customOrders = pgTable("custom_orders", {
+// Artisan Portal Custom Orders - separate from main site custom_orders
+export const artisanCustomOrders = pgTable("artisan_custom_orders", {
   id: serial("id").primaryKey(),
-  customerId: integer("customer_id").references(() => customers.id),
   artisanId: integer("artisan_id").references(() => artisans.id),
+  customerId: integer("customer_id").references(() => customers.id),
   baseProductId: integer("base_product_id").references(() => products.id),
-  customizationData: text("customization_data"),
-  customerNotes: text("customer_notes"),
-  basePrice: numeric("base_price", { precision: 12, scale: 2 }),
-  customizationPrice: numeric("customization_price", { precision: 12, scale: 2 }),
-  totalPrice: numeric("total_price", { precision: 12, scale: 2 }),
-  currency: varchar("currency", { length: 3 }),
-  depositRequired: boolean("deposit_required"),
-  depositAmount: numeric("deposit_amount", { precision: 12, scale: 2 }),
-  depositPaid: boolean("deposit_paid"),
-  estimatedLeadTimeDays: integer("estimated_lead_time_days"),
+  title: varchar("title", { length: 200 }),
+  description: text("description"),
+  budgetMin: numeric("budget_min", { precision: 12, scale: 2 }),
+  budgetMax: numeric("budget_max", { precision: 12, scale: 2 }),
+  desiredCompletionDate: timestamp("desired_completion_date"),
+  preferredMaterials: text("preferred_materials").array(),
+  referenceImages: text("reference_images").array(),
+  quotedPrice: numeric("quoted_price", { precision: 12, scale: 2 }),
   estimatedCompletionDate: timestamp("estimated_completion_date"),
-  actualCompletionDate: timestamp("actual_completion_date"),
+  quoteNotes: text("quote_notes"),
+  quotedAt: timestamp("quoted_at"),
+  totalPrice: numeric("total_price", { precision: 12, scale: 2 }),
   status: varchar("status", { length: 20 }).$type<
+    | "pending"
     | "draft"
     | "quoted"
-    | "approved"
+    | "accepted"
     | "in_production"
     | "completed"
+    | "delivered"
     | "cancelled"
-  >(),
+  >().default("pending"),
+  acceptedAt: timestamp("accepted_at"),
+  productionStartedAt: timestamp("production_started_at"),
+  completedAt: timestamp("completed_at"),
+  deliveredAt: timestamp("delivered_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const productionStages = pgTable("production_stages", {
+export const artisanCustomOrderMessages = pgTable("artisan_custom_order_messages", {
   id: serial("id").primaryKey(),
-  customOrderId: integer("custom_order_id").references(() => customOrders.id).notNull(),
+  customOrderId: integer("custom_order_id").references(() => artisanCustomOrders.id).notNull(),
+  senderId: integer("sender_id").notNull(),
+  senderType: varchar("sender_type", { length: 20 }).notNull(), // artisan | customer
+  message: text("message").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const artisanProductionStages = pgTable("artisan_production_stages", {
+  id: serial("id").primaryKey(),
+  customOrderId: integer("custom_order_id").references(() => artisanCustomOrders.id).notNull(),
   stage: varchar("stage", { length: 50 }).notNull(),
-  status: varchar("status", { length: 20 }),
-  artisanNotes: text("artisan_notes"),
-  photoMediaId: integer("photo_media_id"),
-  completedAt: timestamp("completed_at"),
+  notes: text("notes"),
+  photoUrl: text("photo_url"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

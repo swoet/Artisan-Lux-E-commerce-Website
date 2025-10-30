@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireArtisanAuth } from "@/lib/auth";
 import { db } from "@/db";
-import { customOrders, customers } from "@/db/schema";
+import { artisanCustomOrders, customers } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { sendEmail } from "@/lib/email";
 
@@ -31,12 +31,12 @@ export async function POST(
 
     // Update order status
     const [updatedOrder] = await db
-      .update(customOrders)
+      .update(artisanCustomOrders)
       .set(updateData)
       .where(
         and(
-          eq(customOrders.id, parseInt(id)),
-          eq(customOrders.artisanId, artisan.id)
+          eq(artisanCustomOrders.id, parseInt(id)),
+          eq(artisanCustomOrders.artisanId, artisan.id)
         )
       )
       .returning();

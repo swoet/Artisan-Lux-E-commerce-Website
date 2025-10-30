@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireArtisanAuth } from "@/lib/auth";
 import { db } from "@/db";
-import { customOrders, customOrderProductionStages, customers } from "@/db/schema";
+import { artisanCustomOrders, artisanProductionStages, customers } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { sendEmail } from "@/lib/email";
 
@@ -18,11 +18,11 @@ export async function POST(
     // Get order details
     const [order] = await db
       .select()
-      .from(customOrders)
+      .from(artisanCustomOrders)
       .where(
         and(
-          eq(customOrders.id, parseInt(id)),
-          eq(customOrders.artisanId, artisan.id)
+          eq(artisanCustomOrders.id, parseInt(id)),
+          eq(artisanCustomOrders.artisanId, artisan.id)
         )
       )
       .limit(1);
@@ -35,7 +35,7 @@ export async function POST(
     }
 
     // Insert production stage update
-    await db.insert(customOrderProductionStages).values({
+    await db.insert(artisanProductionStages).values({
       customOrderId: order.id,
       stage,
       notes,
@@ -44,9 +44,9 @@ export async function POST(
 
     // Update order timestamp
     await db
-      .update(customOrders)
+      .update(artisanCustomOrders)
       .set({ updatedAt: new Date() })
-      .where(eq(customOrders.id, order.id));
+      .where(eq(artisanCustomOrders.id, order.id));
 
     // Send email notification to customer
     const stageLabels: Record<string, string> = {

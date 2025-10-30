@@ -1,6 +1,6 @@
 import { requireArtisanAuth } from "@/lib/auth";
 import { db } from "@/db";
-import { customOrders, customers, customOrderMessages } from "@/db/schema";
+import { artisanCustomOrders, customers, artisanCustomOrderMessages } from "@/db/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Image from "next/image";
@@ -21,15 +21,15 @@ export default async function CustomOrderDetailPage({ params }: CustomOrderDetai
   // Fetch order details
   const [orderData] = await db
     .select({
-      order: customOrders,
+      order: artisanCustomOrders,
       customer: customers,
     })
-    .from(customOrders)
-    .leftJoin(customers, eq(customOrders.customerId, customers.id))
+    .from(artisanCustomOrders)
+    .leftJoin(customers, eq(artisanCustomOrders.customerId, customers.id))
     .where(
       and(
-        eq(customOrders.id, parseInt(id)),
-        eq(customOrders.artisanId, artisan.id)
+        eq(artisanCustomOrders.id, parseInt(id)),
+        eq(artisanCustomOrders.artisanId, artisan.id)
       )
     )
     .limit(1);
@@ -44,9 +44,9 @@ export default async function CustomOrderDetailPage({ params }: CustomOrderDetai
   // Fetch messages
   const messages = await db
     .select()
-    .from(customOrderMessages)
-    .where(eq(customOrderMessages.customOrderId, order.id))
-    .orderBy(customOrderMessages.createdAt);
+    .from(artisanCustomOrderMessages)
+    .where(eq(artisanCustomOrderMessages.customOrderId, order.id))
+    .orderBy(artisanCustomOrderMessages.createdAt);
 
   return (
     <div className="min-h-screen">

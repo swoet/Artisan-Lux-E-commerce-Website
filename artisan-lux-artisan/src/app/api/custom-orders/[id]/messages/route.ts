@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireArtisanAuth } from "@/lib/auth";
 import { db } from "@/db";
-import { customOrders, customOrderMessages, customers } from "@/db/schema";
+import { artisanCustomOrders, artisanCustomOrderMessages, customers } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { sendEmail } from "@/lib/email";
 
@@ -18,11 +18,11 @@ export async function POST(
     // Verify order belongs to artisan
     const [order] = await db
       .select()
-      .from(customOrders)
+      .from(artisanCustomOrders)
       .where(
         and(
-          eq(customOrders.id, parseInt(id)),
-          eq(customOrders.artisanId, artisan.id)
+          eq(artisanCustomOrders.id, parseInt(id)),
+          eq(artisanCustomOrders.artisanId, artisan.id)
         )
       )
       .limit(1);
@@ -36,7 +36,7 @@ export async function POST(
 
     // Insert message
     const [newMessage] = await db
-      .insert(customOrderMessages)
+      .insert(artisanCustomOrderMessages)
       .values({
         customOrderId: order.id,
         senderId: artisan.id,

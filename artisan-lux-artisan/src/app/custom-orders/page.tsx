@@ -1,6 +1,6 @@
 import { requireArtisanAuth } from "@/lib/auth";
 import { db } from "@/db";
-import { customOrders, customers } from "@/db/schema";
+import { artisanCustomOrders, customers } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 import Link from "next/link";
 import TopNav from "@/components/TopNav";
@@ -11,13 +11,13 @@ export default async function CustomOrdersPage() {
   // Fetch custom orders for this artisan
   const orders = await db
     .select({
-      order: customOrders,
+      order: artisanCustomOrders,
       customer: customers,
     })
-    .from(customOrders)
-    .leftJoin(customers, eq(customOrders.customerId, customers.id))
-    .where(eq(customOrders.artisanId, artisan.id))
-    .orderBy(desc(customOrders.createdAt));
+    .from(artisanCustomOrders)
+    .leftJoin(customers, eq(artisanCustomOrders.customerId, customers.id))
+    .where(eq(artisanCustomOrders.artisanId, artisan.id))
+    .orderBy(desc(artisanCustomOrders.createdAt));
 
   const pendingOrders = orders.filter(o => o.order.status === "pending");
   const activeOrders = orders.filter(o => ["quoted", "accepted", "in_production"].includes(o.order.status || ""));
