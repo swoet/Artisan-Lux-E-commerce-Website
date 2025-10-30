@@ -54,11 +54,8 @@ export default async function ProductsPage() {
             <Link href="/products" className="py-4 border-b-2 border-brand-dark-wood font-medium text-brand-dark-wood">
               Products
             </Link>
-            <Link href="/orders" className="py-4 border-b-2 border-transparent hover:border-neutral-600 text-neutral-300 hover:text-neutral-100">
-              Orders
-            </Link>
             <Link href="/custom-orders" className="py-4 border-b-2 border-transparent hover:border-neutral-600 text-neutral-300 hover:text-neutral-100">
-              Custom Orders
+              Orders
             </Link>
             <Link href="/analytics" className="py-4 border-b-2 border-transparent hover:border-neutral-600 text-neutral-300 hover:text-neutral-100">
               Analytics

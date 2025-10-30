@@ -158,7 +158,6 @@ export const customOrders = pgTable("custom_orders", {
   id: serial("id").primaryKey(),
   artisanId: integer("artisan_id").references(() => artisans.id),
   customerId: integer("customer_id").references(() => customers.id),
-  customerEmail: varchar("customer_email", { length: 160 }),
   baseProductId: integer("base_product_id").references(() => products.id),
   title: varchar("title", { length: 200 }),
   description: text("description"),

@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { customOrders, customers } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 import Link from "next/link";
+import TopNav from "@/components/TopNav";
 
 export default async function CustomOrdersPage() {
   const artisan = await requireArtisanAuth();
@@ -35,30 +36,7 @@ export default async function CustomOrdersPage() {
       </header>
 
       {/* Navigation */}
-      <nav className="bg-transparent border-b border-neutral-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex space-x-8">
-            <Link href="/" className="py-4 border-b-2 border-transparent hover:border-neutral-600 text-neutral-300 hover:text-neutral-100">
-              Dashboard
-            </Link>
-            <Link href="/products" className="py-4 border-b-2 border-transparent hover:border-neutral-600 text-neutral-300 hover:text-neutral-100">
-              Products
-            </Link>
-            <Link href="/orders" className="py-4 border-b-2 border-transparent hover:border-neutral-600 text-neutral-300 hover:text-neutral-100">
-              Orders
-            </Link>
-            <Link href="/custom-orders" className="py-4 border-b-2 border-brand-dark-wood font-medium text-brand-dark-wood">
-              Custom Orders
-            </Link>
-            <Link href="/analytics" className="py-4 border-b-2 border-transparent hover:border-neutral-600 text-neutral-300 hover:text-neutral-100">
-              Analytics
-            </Link>
-            <Link href="/profile" className="py-4 border-b-2 border-transparent hover:border-neutral-600 text-neutral-300 hover:text-neutral-100">
-              Profile
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <TopNav />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
