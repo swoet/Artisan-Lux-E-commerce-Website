@@ -59,8 +59,8 @@ export async function POST(
     };
 
     try {
-      let toEmail = order.customerEmail || "";
-      if (!toEmail && order.customerId) {
+      let toEmail = "";
+      if (order.customerId) {
         const [cust] = await db
           .select({ email: customers.email })
           .from(customers)

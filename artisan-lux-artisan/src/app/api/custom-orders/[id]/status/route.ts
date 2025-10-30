@@ -65,8 +65,8 @@ export async function POST(
 
     if (emailSubjects[status]) {
       try {
-        let toEmail = updatedOrder.customerEmail || "";
-        if (!toEmail && updatedOrder.customerId) {
+        let toEmail = "";
+        if (updatedOrder.customerId) {
           const [cust] = await db
             .select({ email: customers.email })
             .from(customers)

@@ -43,8 +43,8 @@ export async function POST(
 
     // Send email notification to customer
     try {
-      let toEmail = updatedOrder.customerEmail || "";
-      if (!toEmail && updatedOrder.customerId) {
+      let toEmail = "";
+      if (updatedOrder.customerId) {
         const [cust] = await db
           .select({ email: customers.email })
           .from(customers)
