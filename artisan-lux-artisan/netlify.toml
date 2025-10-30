@@ -8,6 +8,10 @@
 [build.environment]
   NODE_VERSION = "20"
 
+# Function settings
+[functions]
+  node_bundler = "esbuild"
+
 # Redirect rules for Next.js
 [[redirects]]
   from = "/*"

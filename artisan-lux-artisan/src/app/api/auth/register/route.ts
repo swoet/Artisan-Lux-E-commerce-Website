@@ -68,8 +68,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Hash password with bcrypt (cost factor 12 for strong security)
-    const passwordHash = await bcrypt.hash(password, 12);
+    // Hash password with bcrypt (cost factor 10 - optimized for serverless)
+    const passwordHash = await bcrypt.hash(password, 10);
 
     // Generate slug
     const slug = generateSlug(name);
@@ -322,7 +322,7 @@ export async function POST(request: NextRequest) {
                   <div class="info-box" style="margin-top: 20px; border-left-color: #4ade80;">
                     <p><strong>🔐 Security Features</strong></p>
                     <p style="margin-top: 8px;">
-                      • Password encrypted with bcrypt (cost factor 12)<br>
+                      • Password encrypted with bcrypt (1024 rounds)<br>
                       • Minimum 12 characters with mixed case, numbers & symbols<br>
                       • Secure session management
                     </p>
