@@ -20,6 +20,17 @@ body {
   color: var(--foreground);
 }
 
+/* Ensure native <select> dropdowns are readable in both themes */
+select {
+  background: color-mix(in oklab, var(--background) 96%, black 4%);
+  color: var(--foreground);
+}
+select option,
+select optgroup {
+  background-color: color-mix(in oklab, var(--background) 96%, black 4%);
+  color: var(--foreground);
+}
+
 /* Simple card */
 .card {
   background: color-mix(in oklab, var(--background) 96%, black 4%);
