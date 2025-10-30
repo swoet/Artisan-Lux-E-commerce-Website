@@ -14,14 +14,14 @@ declare global {
 }
 
 // Prefer Vercel Postgres pooled driver when available to avoid connection storms
-function useVercelDriver() {
+function shouldUseVercelDriver() {
   return !!process.env.POSTGRES_URL || !!process.env.POSTGRES_PRISMA_URL || !!process.env.VERCEL;
 }
 
 let db: ReturnType<typeof drizzleNode> | ReturnType<typeof drizzleVercel>;
 let pool: Pool | undefined;
 
-if (useVercelDriver()) {
+if (shouldUseVercelDriver()) {
   // Uses Vercel-managed pooled connections
   db = drizzleVercel(sql, { schema });
 } else {
@@ -44,7 +44,7 @@ export { schema };
 // Prevents "missing table: sessions/admins" on fresh databases.
 async function initCoreTables() {
   try {
-    if (useVercelDriver()) {
+    if (shouldUseVercelDriver()) {
       // admins
       await sql`CREATE TABLE IF NOT EXISTS admins (
         id SERIAL PRIMARY KEY,
