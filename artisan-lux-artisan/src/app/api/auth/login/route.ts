@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createArtisanSession } from "@/lib/auth";
 
+// Ensure this route is always dynamic and runs on Node.js runtime
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export async function POST(request: NextRequest) {
   try {
+    console.log("[login] POST start");
+    console.time("[login] parse json");
     const { email, password } = await request.json();
+    console.timeEnd("[login] parse json");
 
     if (!email || !password) {
       return NextResponse.json(
@@ -12,7 +19,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.time("[login] create session");
     const result = await createArtisanSession(email, password);
+    console.timeEnd("[login] create session");
 
     if (!result.success) {
       return NextResponse.json(
@@ -21,10 +30,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       success: true,
       artisan: result.session,
     });
+    console.log("[login] POST success");
+    return res;
   } catch (error) {
     console.error("Login error:", error);
     return NextResponse.json(

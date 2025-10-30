@@ -90,17 +90,36 @@ export async function createArtisanSession(
   password: string
 ): Promise<{ success: boolean; error?: string; session?: ArtisanSession }> {
   try {
-    const [artisan] = await db
-      .select()
-      .from(artisans)
-      .where(eq(artisans.email, email.toLowerCase()))
-      .limit(1);
+    const startAll = Date.now();
+    console.log("[auth] createArtisanSession:start", { email });
+
+    // Helper to bound operation time
+    const withTimeout = async <T>(p: Promise<T>, ms: number, label: string): Promise<T> => {
+      return await Promise.race<T>([
+        p,
+        new Promise<T>((_, reject) => setTimeout(() => reject(new Error(`${label} timeout after ${ms}ms`)), ms)) as Promise<T>,
+      ]);
+    };
+
+    console.time("[auth] db:select artisan");
+    const [artisan] = await withTimeout(
+      db
+        .select()
+        .from(artisans)
+        .where(eq(artisans.email, email.toLowerCase()))
+        .limit(1),
+      8000,
+      "select artisan"
+    );
+    console.timeEnd("[auth] db:select artisan");
 
     if (!artisan) {
       return { success: false, error: "Invalid credentials" };
     }
 
+    console.time("[auth] bcrypt:compare");
     const validPassword = await bcrypt.compare(password, artisan.passwordHash);
+    console.timeEnd("[auth] bcrypt:compare");
     if (!validPassword) {
       return { success: false, error: "Invalid credentials" };
     }
@@ -111,14 +130,17 @@ export async function createArtisanSession(
     const token = crypto.randomUUID();
     const expiresAt = new Date(Date.now() + SESSION_DURATION);
 
-    await db.insert(artisanSessions).values({
+    console.time("[auth] db:insert session");
+    await withTimeout(db.insert(artisanSessions).values({
       artisanId: artisan.id,
       token,
       expiresAt,
-    });
+    }), 4000, "insert session");
+    console.timeEnd("[auth] db:insert session");
 
     // Set cookie
     const cookieStore = await cookies();
+    console.time("[auth] cookie:set");
     cookieStore.set(SESSION_COOKIE, token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -126,6 +148,7 @@ export async function createArtisanSession(
       expires: expiresAt,
       path: "/",
     });
+    console.timeEnd("[auth] cookie:set");
 
     return {
       success: true,
@@ -139,7 +162,12 @@ export async function createArtisanSession(
     };
   } catch (error) {
     console.error("Error creating artisan session:", error);
-    return { success: false, error: "An error occurred" };
+    const message = (error as Error)?.message || "An error occurred";
+    // If we hit our timeout guard, surface a 503-friendly message
+    if (message.includes("timeout")) {
+      return { success: false, error: "Login is taking longer than expected. Please try again in a moment." };
+    }
+    return { success: false, error: message };
   }
 }
 
