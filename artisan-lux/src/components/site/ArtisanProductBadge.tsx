@@ -12,7 +12,26 @@ export default async function ArtisanProductBadge({ productSlug }: ArtisanProduc
   // Fetch product with artisan and passport info
   const [productData] = await db
     .select({
-      product: products,
+      product: {
+        id: products.id,
+        title: products.title,
+        slug: products.slug,
+        subtitle: products.subtitle,
+        descriptionRich: products.descriptionRich,
+        materials: products.materials,
+        priceDecimal: products.priceDecimal,
+        currency: products.currency,
+        categoryId: products.categoryId,
+        subcategoryId: products.subcategoryId,
+        tags: products.tags,
+        status: products.status,
+        isFeatured: products.isFeatured,
+        order: products.order,
+        coverImageId: products.coverImageId,
+        model3dAssetId: products.model3dAssetId,
+        createdAt: products.createdAt,
+        updatedAt: products.updatedAt,
+      },
       artisan: artisans,
       passport: provenancePassports,
     })
