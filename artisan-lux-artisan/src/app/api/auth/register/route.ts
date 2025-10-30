@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
         slug,
         studioName: studioName || null,
         specialties: specialtiesArray.length > 0 ? specialtiesArray : null,
-        status: "pending", // Pending admin approval
+        status: "active", // Immediately active - no approval needed
         emailVerified: true, // No email verification needed
         verificationCode: null,
         verificationCodeExpiresAt: null,
@@ -312,10 +312,10 @@ export async function POST(request: NextRequest) {
                   </p>
                   
                   <div class="info-box">
-                    <p><strong>📋 What happens next?</strong></p>
+                    <p><strong>🎉 You're all set!</strong></p>
                     <p style="margin-top: 8px;">
-                      Your account is currently under review by our team. 
-                      You'll receive an email within 24-48 hours once your artisan profile is activated.
+                      Your account is now active and ready to use. 
+                      You can sign in immediately and start managing your artisan studio.
                     </p>
                   </div>
                   
@@ -361,9 +361,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: "Account created successfully! Your account is under review and will be activated within 24-48 hours.",
+      message: "Account created successfully! You can now sign in and start using your artisan portal.",
       artisanId: artisan.id,
-      requiresApproval: true,
     });
   } catch (error) {
     console.error("Registration error:", error);

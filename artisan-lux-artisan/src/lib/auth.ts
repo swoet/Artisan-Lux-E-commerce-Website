@@ -105,9 +105,7 @@ export async function createArtisanSession(
       return { success: false, error: "Invalid credentials" };
     }
 
-    if (artisan.status !== "active") {
-      return { success: false, error: "Your account is under review. You'll receive an email once it's activated within 24-48 hours." };
-    }
+    // No status check needed - all accounts are active immediately
 
     // Generate session token
     const token = crypto.randomUUID();

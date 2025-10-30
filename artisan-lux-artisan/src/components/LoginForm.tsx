@@ -19,7 +19,7 @@ export default function LoginForm() {
   useEffect(() => {
     const registered = searchParams.get("registered");
     if (registered === "true") {
-      setSuccess("Account created successfully! Your account is under review and will be activated within 24-48 hours.");
+      setSuccess("Account created successfully! You can now sign in.");
     }
   }, [searchParams]);
 
