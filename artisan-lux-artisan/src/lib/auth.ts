@@ -105,12 +105,8 @@ export async function createArtisanSession(
       return { success: false, error: "Invalid credentials" };
     }
 
-    if (!artisan.emailVerified) {
-      return { success: false, error: "Please verify your email before logging in. Check your inbox for the verification code." };
-    }
-
     if (artisan.status !== "active") {
-      return { success: false, error: "Your account is under review. You'll receive an email once it's activated." };
+      return { success: false, error: "Your account is under review. You'll receive an email once it's activated within 24-48 hours." };
     }
 
     // Generate session token

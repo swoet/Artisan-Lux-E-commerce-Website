@@ -4,9 +4,24 @@ import { artisans } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 
-// Generate 6-digit verification code
-function generateVerificationCode(): string {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+// Validate password strength
+function validatePasswordStrength(password: string): { valid: boolean; error?: string } {
+  if (password.length < 12) {
+    return { valid: false, error: "Password must be at least 12 characters long" };
+  }
+  if (!/[a-z]/.test(password)) {
+    return { valid: false, error: "Password must contain at least one lowercase letter" };
+  }
+  if (!/[A-Z]/.test(password)) {
+    return { valid: false, error: "Password must contain at least one uppercase letter" };
+  }
+  if (!/[0-9]/.test(password)) {
+    return { valid: false, error: "Password must contain at least one number" };
+  }
+  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+    return { valid: false, error: "Password must contain at least one special character" };
+  }
+  return { valid: true };
 }
 
 // Generate slug from name
@@ -30,9 +45,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (password.length < 8) {
+    // Validate password strength
+    const passwordValidation = validatePasswordStrength(password);
+    if (!passwordValidation.valid) {
       return NextResponse.json(
-        { error: "Password must be at least 8 characters" },
+        { error: passwordValidation.error },
         { status: 400 }
       );
     }
@@ -51,12 +68,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Hash password
-    const passwordHash = await bcrypt.hash(password, 10);
-
-    // Generate verification code
-    const verificationCode = generateVerificationCode();
-    const verificationCodeExpiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+    // Hash password with bcrypt (cost factor 12 for strong security)
+    const passwordHash = await bcrypt.hash(password, 12);
 
     // Generate slug
     const slug = generateSlug(name);
@@ -76,16 +89,16 @@ export async function POST(request: NextRequest) {
         slug,
         studioName: studioName || null,
         specialties: specialtiesArray.length > 0 ? specialtiesArray : null,
-        status: "pending",
-        emailVerified: false,
-        verificationCode,
-        verificationCodeExpiresAt,
+        status: "pending", // Pending admin approval
+        emailVerified: true, // No email verification needed
+        verificationCode: null,
+        verificationCodeExpiresAt: null,
         createdAt: new Date(),
         updatedAt: new Date(),
       })
       .returning();
 
-    // Send verification email
+    // Send welcome email (optional - no verification needed)
     try {
       const emailApiUrl = process.env.NEXT_PUBLIC_SITE_URL 
         ? `${process.env.NEXT_PUBLIC_SITE_URL}/api/send-email`
@@ -96,7 +109,7 @@ export async function POST(request: NextRequest) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           to: email,
-          subject: "Verify Your Artisan Lux Account",
+          subject: "Welcome to Artisan Lux - Account Under Review",
           html: `
             <!DOCTYPE html>
             <html lang="en">
@@ -294,20 +307,24 @@ export async function POST(request: NextRequest) {
                   </p>
                   
                   <p class="message">
-                    To complete your registration and verify your email address, please enter the code below:
+                    Your account has been successfully created with strong encryption security. 
+                    Your password is securely hashed using industry-standard bcrypt encryption.
                   </p>
-                  
-                  <div class="code-container">
-                    <div class="code-label">Your Verification Code</div>
-                    <div class="code">${verificationCode}</div>
-                    <div class="expiry">⏱️ Expires in 15 minutes</div>
-                  </div>
                   
                   <div class="info-box">
                     <p><strong>📋 What happens next?</strong></p>
                     <p style="margin-top: 8px;">
-                      Once verified, your account will be reviewed by our team. 
+                      Your account is currently under review by our team. 
                       You'll receive an email within 24-48 hours once your artisan profile is activated.
+                    </p>
+                  </div>
+                  
+                  <div class="info-box" style="margin-top: 20px; border-left-color: #4ade80;">
+                    <p><strong>🔐 Security Features</strong></p>
+                    <p style="margin-top: 8px;">
+                      • Password encrypted with bcrypt (cost factor 12)<br>
+                      • Minimum 12 characters with mixed case, numbers & symbols<br>
+                      • Secure session management
                     </p>
                   </div>
                   
@@ -344,8 +361,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: "Account created! Check your email for verification code.",
+      message: "Account created successfully! Your account is under review and will be activated within 24-48 hours.",
       artisanId: artisan.id,
+      requiresApproval: true,
     });
   } catch (error) {
     console.error("Registration error:", error);

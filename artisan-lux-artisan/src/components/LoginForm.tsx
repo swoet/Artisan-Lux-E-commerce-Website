@@ -15,43 +15,13 @@ export default function LoginForm() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showResendVerification, setShowResendVerification] = useState(false);
-  const [resending, setResending] = useState(false);
 
   useEffect(() => {
-    if (verified === "true") {
-      setSuccess("Email verified! Your account is under review. You can log in once it's activated.");
+    const registered = searchParams.get("registered");
+    if (registered === "true") {
+      setSuccess("Account created successfully! Your account is under review and will be activated within 24-48 hours.");
     }
-  }, [verified]);
-
-  const handleResendVerification = async () => {
-    setResending(true);
-    setError("");
-    setSuccess("");
-
-    try {
-      const res = await fetch("/api/auth/resend-code", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        setSuccess("Verification code sent! Check your email.");
-        setShowResendVerification(false);
-        // Redirect to verify page
-        router.push(`/verify?email=${encodeURIComponent(email)}`);
-      } else {
-        setError(data.error || "Failed to resend code");
-      }
-    } catch (err) {
-      setError("An error occurred. Please try again.");
-    } finally {
-      setResending(false);
-    }
-  };
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,14 +38,7 @@ export default function LoginForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        const errorMsg = data.error || "Login failed";
-        setError(errorMsg);
-        
-        // Show resend verification option if email not verified
-        if (errorMsg.toLowerCase().includes("verify your email")) {
-          setShowResendVerification(true);
-        }
-        
+        setError(data.error || "Login failed");
         setLoading(false);
         return;
       }
@@ -109,17 +72,7 @@ export default function LoginForm() {
 
             {error && (
               <div className="bg-red-900/30 border border-red-700/50 text-red-300 px-4 py-3 rounded-lg">
-                <p>{error}</p>
-                {showResendVerification && (
-                  <button
-                    type="button"
-                    onClick={handleResendVerification}
-                    disabled={resending}
-                    className="mt-3 text-sm underline hover:text-red-200 transition-colors disabled:opacity-50"
-                  >
-                    {resending ? "Sending..." : "Resend verification code"}
-                  </button>
-                )}
+                {error}
               </div>
             )}
 

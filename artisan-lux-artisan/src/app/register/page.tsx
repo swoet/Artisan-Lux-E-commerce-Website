@@ -6,16 +6,16 @@ import Link from "next/link";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [step, setStep] = useState<"register" | "verify">("register");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [name, setName] = useState("");
   const [studioName, setStudioName] = useState("");
   const [specialties, setSpecialties] = useState("");
-  const [verificationCode, setVerificationCode] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,8 +27,13 @@ export default function RegisterPage() {
       return;
     }
 
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters");
+    if (password.length < 12) {
+      setError("Password must be at least 12 characters");
+      return;
+    }
+
+    if (!/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/[0-9]/.test(password) || !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+      setError("Password must contain uppercase, lowercase, numbers, and special characters");
       return;
     }
 
@@ -55,45 +60,33 @@ export default function RegisterPage() {
         return;
       }
 
-      // Move to verification step
-      setStep("verify");
+      // Show success message and redirect to login
+      setSuccess(data.message || "Account created successfully! Redirecting to login...");
       setLoading(false);
+      
+      setTimeout(() => {
+        router.push("/login?registered=true");
+      }, 3000);
     } catch (err) {
       setError("An error occurred. Please try again.");
       setLoading(false);
     }
   };
 
-  const handleVerify = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-
-    try {
-      const res = await fetch("/api/auth/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          code: verificationCode,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error || "Verification failed");
-        setLoading(false);
-        return;
-      }
-
-      // Redirect to login
-      router.push("/login?verified=true");
-    } catch (err) {
-      setError("An error occurred. Please try again.");
-      setLoading(false);
-    }
+  const getPasswordStrength = () => {
+    if (password.length === 0) return { strength: 0, label: "" };
+    let strength = 0;
+    if (password.length >= 12) strength++;
+    if (/[a-z]/.test(password)) strength++;
+    if (/[A-Z]/.test(password)) strength++;
+    if (/[0-9]/.test(password)) strength++;
+    if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) strength++;
+    
+    const labels = ["Very Weak", "Weak", "Fair", "Good", "Strong"];
+    return { strength, label: labels[strength - 1] || "" };
   };
+
+  const passwordStrength = getPasswordStrength();
 
   const resendCode = async () => {
     setError("");
@@ -127,18 +120,15 @@ export default function RegisterPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-serif font-bold bg-gradient-to-r from-brand-metallic to-brand-copper bg-clip-text text-transparent mb-2">
-            {step === "register" ? "🏺 Join Artisan Lux" : "📧 Verify Your Email"}
+            🏺 Join Artisan Lux
           </h1>
           <p className="text-neutral-400">
-            {step === "register"
-              ? "Create your artisan account"
-              : "Enter the code we sent to your email"}
+            Create your artisan account with secure encryption
           </p>
         </div>
 
         <div className="card">
-          {step === "register" ? (
-            <form onSubmit={handleRegister} className="space-y-4" suppressHydrationWarning>
+          <form onSubmit={handleRegister} className="space-y-4" suppressHydrationWarning>
               {error && (
                 <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
                   {error}
@@ -210,16 +200,51 @@ export default function RegisterPage() {
                 <label className="block text-sm font-medium text-neutral-300 mb-2">
                   Password *
                 </label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={8}
-                  className="input"
-                  placeholder="••••••••"
-                  disabled={loading}
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={12}
+                    className="input pr-10"
+                    placeholder="••••••••••••"
+                    disabled={loading}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-200"
+                  >
+                    {showPassword ? "👁️" : "👁️‍🗨️"}
+                  </button>
+                </div>
+                {password && (
+                  <div className="mt-2">
+                    <div className="flex gap-1 mb-1">
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <div
+                          key={i}
+                          className={`h-1 flex-1 rounded ${
+                            i <= passwordStrength.strength
+                              ? passwordStrength.strength <= 2
+                                ? "bg-red-500"
+                                : passwordStrength.strength === 3
+                                ? "bg-yellow-500"
+                                : passwordStrength.strength === 4
+                                ? "bg-blue-500"
+                                : "bg-green-500"
+                              : "bg-neutral-700"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <p className="text-xs text-neutral-400">{passwordStrength.label}</p>
+                  </div>
+                )}
+                <p className="text-xs text-neutral-500 mt-1">
+                  Min 12 chars with uppercase, lowercase, numbers & symbols
+                </p>
               </div>
 
               <div>
@@ -227,16 +252,22 @@ export default function RegisterPage() {
                   Confirm Password *
                 </label>
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
-                  minLength={8}
+                  minLength={12}
                   className="input"
-                  placeholder="••••••••"
+                  placeholder="••••••••••••"
                   disabled={loading}
                 />
               </div>
+
+              {success && (
+                <div className="bg-green-900/30 border border-green-700/50 text-green-300 px-4 py-3 rounded-lg">
+                  {success}
+                </div>
+              )}
 
               <button
                 type="submit"
@@ -246,69 +277,14 @@ export default function RegisterPage() {
                 {loading ? "Creating Account..." : "Create Account"}
               </button>
             </form>
-          ) : (
-            <form onSubmit={handleVerify} className="space-y-4" suppressHydrationWarning>
-              {error && (
-                <div className="bg-red-900/30 border border-red-700/50 text-red-300 px-4 py-3 rounded-lg">
-                  {error}
-                </div>
-              )}
-
-              <div className="bg-blue-900/30 border border-blue-700/50 text-blue-300 px-4 py-3 rounded-lg text-sm">
-                We sent a 6-digit code to <strong>{email}</strong>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-neutral-300 mb-2">
-                  Verification Code
-                </label>
-                <input
-                  type="text"
-                  value={verificationCode}
-                  onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                  required
-                  maxLength={6}
-                  className="input text-center text-2xl tracking-widest"
-                  placeholder="000000"
-                  disabled={loading}
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading || verificationCode.length !== 6}
-                className="btn btn-primary w-full justify-center"
-              >
-                {loading ? "Verifying..." : "Verify Email"}
-              </button>
-
-              <button
-                type="button"
-                onClick={resendCode}
-                disabled={loading}
-                className="btn btn-secondary w-full justify-center"
-              >
-                Resend Code
-              </button>
-            </form>
-          )}
 
           <div className="mt-6 text-center text-sm text-neutral-400">
-            {step === "register" ? (
-              <p>
-                Already have an account?{" "}
-                <Link href="/login" className="text-brand-metallic hover:text-brand-copper hover:underline font-medium transition-colors">
-                  Sign In
-                </Link>
-              </p>
-            ) : (
-              <button
-                onClick={() => setStep("register")}
-                className="text-brand-metallic hover:text-brand-copper hover:underline transition-colors"
-              >
-                ← Back to Registration
-              </button>
-            )}
+            <p>
+              Already have an account?{" "}
+              <Link href="/login" className="text-brand-metallic hover:text-brand-copper hover:underline font-medium transition-colors">
+                Sign In
+              </Link>
+            </p>
           </div>
         </div>
 
