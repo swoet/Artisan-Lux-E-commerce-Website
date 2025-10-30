@@ -17,7 +17,11 @@ export async function POST(request: NextRequest) {
 
     // Check if product exists
     const [product] = await db
-      .select()
+      .select({
+        id: products.id,
+        title: products.title,
+        slug: products.slug,
+      })
       .from(products)
       .where(eq(products.id, productId))
       .limit(1);
