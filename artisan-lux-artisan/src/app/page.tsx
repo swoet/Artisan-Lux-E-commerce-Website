@@ -1,6 +1,6 @@
 import { requireArtisanAuth } from "@/lib/auth";
 import { db } from "@/db";
-import { products, productArtisans, customOrders, orders, orderItems } from "@/db/schema";
+import { products, productArtisans, artisanCustomOrders, orders, orderItems } from "@/db/schema";
 import { eq, and, sql, desc } from "drizzle-orm";
 import Link from "next/link";
 import TopNav from "@/components/TopNav";
@@ -12,13 +12,13 @@ export default async function DashboardPage() {
   const [stats] = await db
     .select({
       totalProducts: sql<number>`count(distinct ${products.id})`,
-      activeOrders: sql<number>`count(distinct case when ${customOrders.status} in ('accepted', 'in_production') then ${customOrders.id} end)`,
-      pendingQuotes: sql<number>`count(distinct case when ${customOrders.status} = 'draft' then ${customOrders.id} end)`,
+      activeOrders: sql<number>`count(distinct case when ${artisanCustomOrders.status} in ('accepted', 'in_production') then ${artisanCustomOrders.id} end)`,
+      pendingQuotes: sql<number>`count(distinct case when ${artisanCustomOrders.status} = 'pending' then ${artisanCustomOrders.id} end)`,
       totalSales: sql<string>`coalesce(sum(${orders.total}), 0)`,
     })
     .from(products)
     .leftJoin(productArtisans, eq(products.id, productArtisans.productId))
-    .leftJoin(customOrders, eq(customOrders.artisanId, artisan.id))
+    .leftJoin(artisanCustomOrders, eq(artisanCustomOrders.artisanId, artisan.id))
     .leftJoin(orderItems, eq(orderItems.productId, products.id))
     .leftJoin(orders, eq(orders.id, orderItems.orderId))
     .where(eq(productArtisans.artisanId, artisan.id));
@@ -26,16 +26,16 @@ export default async function DashboardPage() {
   // Fetch recent custom orders
   const recentOrders = await db
     .select({
-      id: customOrders.id,
-      status: customOrders.status,
-      totalPrice: customOrders.totalPrice,
-      createdAt: customOrders.createdAt,
+      id: artisanCustomOrders.id,
+      status: artisanCustomOrders.status,
+      totalPrice: artisanCustomOrders.totalPrice,
+      createdAt: artisanCustomOrders.createdAt,
       baseProduct: products.title,
     })
-    .from(customOrders)
-    .leftJoin(products, eq(customOrders.baseProductId, products.id))
-    .where(eq(customOrders.artisanId, artisan.id))
-    .orderBy(desc(customOrders.createdAt))
+    .from(artisanCustomOrders)
+    .leftJoin(products, eq(artisanCustomOrders.baseProductId, products.id))
+    .where(eq(artisanCustomOrders.artisanId, artisan.id))
+    .orderBy(desc(artisanCustomOrders.createdAt))
     .limit(5);
 
   return (
