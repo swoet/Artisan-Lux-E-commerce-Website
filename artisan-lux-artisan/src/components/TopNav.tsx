@@ -9,6 +9,7 @@ export default function TopNav() {
     { href: "/", label: "Dashboard" },
     { href: "/products", label: "Products" },
     { href: "/custom-orders", label: "Orders" },
+    { href: "/analytics", label: "Analytics" },
     { href: "/profile", label: "Profile" },
   ];
 
