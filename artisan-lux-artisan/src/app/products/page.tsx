@@ -26,16 +26,16 @@ export default async function ProductsPage() {
     .where(eq(productArtisans.artisanId, artisan.id));
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen">
       {/* Header */}
-      <header className="bg-white border-b border-neutral-200">
+      <header className="bg-transparent border-b border-neutral-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-serif font-bold text-brand-dark-wood">
                 My Products
               </h1>
-              <p className="text-sm text-neutral-600">Manage your product catalog</p>
+              <p className="text-sm text-neutral-400">Manage your product catalog</p>
             </div>
             <Link href="/products/new" className="btn btn-primary">
               + Create Product
@@ -45,25 +45,25 @@ export default async function ProductsPage() {
       </header>
 
       {/* Navigation */}
-      <nav className="bg-white border-b border-neutral-200">
+      <nav className="bg-transparent border-b border-neutral-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex space-x-8">
-            <Link href="/" className="py-4 border-b-2 border-transparent hover:border-neutral-300 text-neutral-600 hover:text-neutral-900">
+            <Link href="/" className="py-4 border-b-2 border-transparent hover:border-neutral-600 text-neutral-300 hover:text-neutral-100">
               Dashboard
             </Link>
             <Link href="/products" className="py-4 border-b-2 border-brand-dark-wood font-medium text-brand-dark-wood">
               Products
             </Link>
-            <Link href="/orders" className="py-4 border-b-2 border-transparent hover:border-neutral-300 text-neutral-600 hover:text-neutral-900">
+            <Link href="/orders" className="py-4 border-b-2 border-transparent hover:border-neutral-600 text-neutral-300 hover:text-neutral-100">
               Orders
             </Link>
-            <Link href="/custom-orders" className="py-4 border-b-2 border-transparent hover:border-neutral-300 text-neutral-600 hover:text-neutral-900">
+            <Link href="/custom-orders" className="py-4 border-b-2 border-transparent hover:border-neutral-600 text-neutral-300 hover:text-neutral-100">
               Custom Orders
             </Link>
-            <Link href="/analytics" className="py-4 border-b-2 border-transparent hover:border-neutral-300 text-neutral-600 hover:text-neutral-900">
+            <Link href="/analytics" className="py-4 border-b-2 border-transparent hover:border-neutral-600 text-neutral-300 hover:text-neutral-100">
               Analytics
             </Link>
-            <Link href="/profile" className="py-4 border-b-2 border-transparent hover:border-neutral-300 text-neutral-600 hover:text-neutral-900">
+            <Link href="/profile" className="py-4 border-b-2 border-transparent hover:border-neutral-600 text-neutral-300 hover:text-neutral-100">
               Profile
             </Link>
           </div>
@@ -76,7 +76,7 @@ export default async function ProductsPage() {
           <div className="card text-center py-12">
             <div className="text-6xl mb-4">🎨</div>
             <h2 className="text-2xl font-serif font-bold mb-2">No Products Yet</h2>
-            <p className="text-neutral-600 mb-6">
+            <p className="text-neutral-400 mb-6">
               Create your first product to start selling on Artisan Lux
             </p>
             <Link href="/products/new" className="btn btn-primary">
@@ -88,7 +88,7 @@ export default async function ProductsPage() {
             {artisanProducts.map(({ product, category, passport, inventory: inv, coverImage }) => (
               <div key={product.id} className="card hover:shadow-lg transition-shadow">
                 {/* Product Image */}
-                <div className="relative w-full h-48 bg-neutral-100 rounded-lg mb-4 overflow-hidden">
+                <div className="relative w-full h-48 bg-[var(--color-card)] rounded-lg mb-4 overflow-hidden">
                   {coverImage?.url ? (
                     <Image
                       src={coverImage.url}
@@ -110,13 +110,13 @@ export default async function ProductsPage() {
 
                 {/* Product Info */}
                 <h3 className="font-serif font-bold text-lg mb-1">{product.title}</h3>
-                <p className="text-sm text-neutral-600 mb-2">{category?.name || "Uncategorized"}</p>
+                <p className="text-sm text-neutral-400 mb-2">{category?.name || "Uncategorized"}</p>
                 
                 <div className="flex items-center justify-between mb-4">
                   <div className="text-lg font-bold text-brand-dark-wood">
                     ${parseFloat(product.priceDecimal).toFixed(2)}
                   </div>
-                  <div className="text-sm text-neutral-600">
+                  <div className="text-sm text-neutral-400">
                     Stock: {inv?.quantityInStock || 0}
                   </div>
                 </div>

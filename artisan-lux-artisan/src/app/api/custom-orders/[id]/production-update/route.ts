@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireArtisanAuth } from "@/lib/auth";
 import { db } from "@/db";
-import { customOrders, customOrderProductionStages } from "@/db/schema";
+import { customOrders, customOrderProductionStages, customers } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { sendEmail } from "@/lib/email";
 
@@ -59,17 +59,28 @@ export async function POST(
     };
 
     try {
-      await sendEmail({
-        to: order.customerEmail || "",
-        subject: `Production Update: ${order.title}`,
-        html: `
-          <h2>Production Update for Your Custom Order</h2>
-          <h3>${order.title}</h3>
-          <p><strong>Stage:</strong> ${stageLabels[stage] || stage}</p>
-          <p><strong>Update:</strong> ${notes}</p>
-          <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/account/custom-orders/${order.id}">View Full Details</a></p>
-        `,
-      });
+      let toEmail = order.customerEmail || "";
+      if (!toEmail && order.customerId) {
+        const [cust] = await db
+          .select({ email: customers.email })
+          .from(customers)
+          .where(eq(customers.id, order.customerId))
+          .limit(1);
+        toEmail = cust?.email || "";
+      }
+      if (toEmail) {
+        await sendEmail({
+          to: toEmail,
+          subject: `Production Update: ${order.title}`,
+          html: `
+            <h2>Production Update for Your Custom Order</h2>
+            <h3>${order.title}</h3>
+            <p><strong>Stage:</strong> ${stageLabels[stage] || stage}</p>
+            <p><strong>Update:</strong> ${notes}</p>
+            <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/account/custom-orders/${order.id}">View Full Details</a></p>
+          `,
+        });
+      }
     } catch (emailError) {
       console.error("Failed to send email:", emailError);
     }

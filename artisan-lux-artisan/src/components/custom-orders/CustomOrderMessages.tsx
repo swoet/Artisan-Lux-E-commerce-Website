@@ -52,7 +52,7 @@ export default function CustomOrderMessages({ orderId, messages, artisanId }: Cu
       {/* Messages List */}
       <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
         {messages.length === 0 ? (
-          <div className="text-center text-neutral-500 py-8">
+          <div className="text-center text-neutral-400 py-8">
             No messages yet. Start the conversation!
           </div>
         ) : (
@@ -66,11 +66,11 @@ export default function CustomOrderMessages({ orderId, messages, artisanId }: Cu
                 <div className={`max-w-[70%] rounded-lg p-3 ${
                   isArtisan
                     ? "bg-brand-dark-wood text-white"
-                    : "bg-neutral-100 text-neutral-900"
+                    : "bg-[var(--color-card)] text-neutral-200"
                 }`}>
                   <p className="text-sm">{msg.message}</p>
                   <div className={`text-xs mt-1 ${
-                    isArtisan ? "text-white/70" : "text-neutral-500"
+                    isArtisan ? "text-white/70" : "text-neutral-400"
                   }`}>
                     {new Date(msg.createdAt).toLocaleString()}
                   </div>

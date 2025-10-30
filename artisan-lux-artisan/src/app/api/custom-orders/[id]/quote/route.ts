@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireArtisanAuth } from "@/lib/auth";
 import { db } from "@/db";
-import { customOrders } from "@/db/schema";
+import { customOrders, customers } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { sendEmail } from "@/lib/email";
 
@@ -43,19 +43,30 @@ export async function POST(
 
     // Send email notification to customer
     try {
-      await sendEmail({
-        to: updatedOrder.customerEmail || "",
-        subject: `Quote Ready: ${updatedOrder.title}`,
-        html: `
-          <h2>Your Custom Order Quote is Ready!</h2>
-          <p>The artisan has prepared a quote for your custom order request.</p>
-          <h3>${updatedOrder.title}</h3>
-          <p><strong>Quoted Price:</strong> $${quotedPrice}</p>
-          <p><strong>Estimated Completion:</strong> ${new Date(estimatedCompletionDate).toLocaleDateString()}</p>
-          ${quoteNotes ? `<p><strong>Notes:</strong> ${quoteNotes}</p>` : ""}
-          <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/account/custom-orders/${updatedOrder.id}">View Quote & Accept</a></p>
-        `,
-      });
+      let toEmail = updatedOrder.customerEmail || "";
+      if (!toEmail && updatedOrder.customerId) {
+        const [cust] = await db
+          .select({ email: customers.email })
+          .from(customers)
+          .where(eq(customers.id, updatedOrder.customerId))
+          .limit(1);
+        toEmail = cust?.email || "";
+      }
+      if (toEmail) {
+        await sendEmail({
+          to: toEmail,
+          subject: `Quote Ready: ${updatedOrder.title}`,
+          html: `
+            <h2>Your Custom Order Quote is Ready!</h2>
+            <p>The artisan has prepared a quote for your custom order request.</p>
+            <h3>${updatedOrder.title}</h3>
+            <p><strong>Quoted Price:</strong> $${quotedPrice}</p>
+            <p><strong>Estimated Completion:</strong> ${new Date(estimatedCompletionDate).toLocaleDateString()}</p>
+            ${quoteNotes ? `<p><strong>Notes:</strong> ${quoteNotes}</p>` : ""}
+            <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/account/custom-orders/${updatedOrder.id}">View Quote & Accept</a></p>
+          `,
+        });
+      }
     } catch (emailError) {
       console.error("Failed to send email:", emailError);
     }

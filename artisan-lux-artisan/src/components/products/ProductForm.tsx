@@ -139,7 +139,7 @@ export default function ProductForm({ artisan, categories, product }: ProductFor
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        <div className="bg-red-900/30 border border-red-700/50 text-red-300 px-4 py-3 rounded-lg">
           {error}
         </div>
       )}
@@ -150,7 +150,7 @@ export default function ProductForm({ artisan, categories, product }: ProductFor
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-2">
+            <label className="block text-sm font-medium text-neutral-300 mb-2">
               Product Title *
             </label>
             <input
@@ -164,7 +164,7 @@ export default function ProductForm({ artisan, categories, product }: ProductFor
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-2">
+            <label className="block text-sm font-medium text-neutral-300 mb-2">
               Description *
             </label>
             <textarea
@@ -179,7 +179,7 @@ export default function ProductForm({ artisan, categories, product }: ProductFor
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-2">
+              <label className="block text-sm font-medium text-neutral-300 mb-2">
                 Price (USD) *
               </label>
               <input
@@ -194,7 +194,7 @@ export default function ProductForm({ artisan, categories, product }: ProductFor
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-2">
+              <label className="block text-sm font-medium text-neutral-300 mb-2">
                 Category *
               </label>
               <select
@@ -213,7 +213,7 @@ export default function ProductForm({ artisan, categories, product }: ProductFor
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-2">
+              <label className="block text-sm font-medium text-neutral-300 mb-2">
                 Stock Quantity *
               </label>
               <input
@@ -228,7 +228,7 @@ export default function ProductForm({ artisan, categories, product }: ProductFor
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-2">
+            <label className="block text-sm font-medium text-neutral-300 mb-2">
               Status
             </label>
             <select
@@ -251,7 +251,7 @@ export default function ProductForm({ artisan, categories, product }: ProductFor
           {images.length > 0 && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
               {images.map((url, index) => (
-                <div key={index} className="relative aspect-square bg-neutral-100 rounded-lg overflow-hidden">
+                <div key={index} className="relative aspect-square bg-[var(--color-card)] rounded-lg overflow-hidden">
                   <Image src={url} alt={`Product ${index + 1}`} fill className="object-cover" />
                   <button
                     type="button"
@@ -277,7 +277,7 @@ export default function ProductForm({ artisan, categories, product }: ProductFor
                 className="hidden"
               />
             </label>
-            <p className="text-sm text-neutral-600 mt-2">
+            <p className="text-sm text-neutral-400 mt-2">
               Upload high-quality images of your product
             </p>
           </div>
@@ -289,7 +289,7 @@ export default function ProductForm({ artisan, categories, product }: ProductFor
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-xl font-serif font-bold">Provenance Passport</h2>
-            <p className="text-sm text-neutral-600">
+            <p className="text-sm text-neutral-400">
               Tell the story behind your product
             </p>
           </div>
@@ -308,7 +308,7 @@ export default function ProductForm({ artisan, categories, product }: ProductFor
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-2">
+                <label className="block text-sm font-medium text-neutral-300 mb-2">
                   Materials Origin
                 </label>
                 <input
@@ -321,7 +321,7 @@ export default function ProductForm({ artisan, categories, product }: ProductFor
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-2">
+                <label className="block text-sm font-medium text-neutral-300 mb-2">
                   Production Time (hours)
                 </label>
                 <input
@@ -335,7 +335,7 @@ export default function ProductForm({ artisan, categories, product }: ProductFor
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-2">
+              <label className="block text-sm font-medium text-neutral-300 mb-2">
                 Materials Description
               </label>
               <textarea
@@ -348,7 +348,7 @@ export default function ProductForm({ artisan, categories, product }: ProductFor
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-2">
+              <label className="block text-sm font-medium text-neutral-300 mb-2">
                 Artisan Notes
               </label>
               <textarea
@@ -361,7 +361,7 @@ export default function ProductForm({ artisan, categories, product }: ProductFor
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-2">
+              <label className="block text-sm font-medium text-neutral-300 mb-2">
                 Care Instructions
               </label>
               <textarea
@@ -375,7 +375,7 @@ export default function ProductForm({ artisan, categories, product }: ProductFor
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-2">
+                <label className="block text-sm font-medium text-neutral-300 mb-2">
                   Carbon Footprint (kg CO₂)
                 </label>
                 <input
@@ -389,7 +389,7 @@ export default function ProductForm({ artisan, categories, product }: ProductFor
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-2">
+                <label className="block text-sm font-medium text-neutral-300 mb-2">
                   Warranty (years)
                 </label>
                 <input

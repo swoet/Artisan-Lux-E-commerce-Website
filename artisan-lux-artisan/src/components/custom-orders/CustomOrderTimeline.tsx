@@ -34,22 +34,22 @@ export default function CustomOrderTimeline({ order }: CustomOrderTimelineProps)
           return (
             <div key={stage.key} className="flex items-start gap-4">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                isCompleted ? "bg-green-100 text-green-700" :
-                isCurrent ? "bg-blue-100 text-blue-700" :
-                "bg-neutral-100 text-neutral-400"
+                isCompleted ? "bg-green-900/30 text-green-300" :
+                isCurrent ? "bg-blue-900/30 text-blue-300" :
+                "bg-neutral-800 text-neutral-400"
               }`}>
                 {stage.icon}
               </div>
               <div className="flex-1 pb-4">
                 <div className={`font-medium ${
-                  isCompleted ? "text-green-700" :
-                  isCurrent ? "text-blue-700" :
+                  isCompleted ? "text-green-300" :
+                  isCurrent ? "text-blue-300" :
                   "text-neutral-400"
                 }`}>
                   {stage.label}
                 </div>
                 {stage.date && (
-                  <div className="text-sm text-neutral-600">
+                  <div className="text-sm text-neutral-400">
                     {new Date(stage.date).toLocaleDateString()} at {new Date(stage.date).toLocaleTimeString()}
                   </div>
                 )}

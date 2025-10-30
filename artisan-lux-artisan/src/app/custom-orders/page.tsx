@@ -23,37 +23,37 @@ export default async function CustomOrdersPage() {
   const completedOrders = orders.filter(o => ["completed", "delivered"].includes(o.order.status || ""));
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen">
       {/* Header */}
-      <header className="bg-white border-b border-neutral-200">
+      <header className="bg-transparent border-b border-neutral-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <h1 className="text-2xl font-serif font-bold text-brand-dark-wood">
             Custom Orders
           </h1>
-          <p className="text-sm text-neutral-600">Manage customer requests and commissions</p>
+          <p className="text-sm text-neutral-400">Manage customer requests and commissions</p>
         </div>
       </header>
 
       {/* Navigation */}
-      <nav className="bg-white border-b border-neutral-200">
+      <nav className="bg-transparent border-b border-neutral-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex space-x-8">
-            <Link href="/" className="py-4 border-b-2 border-transparent hover:border-neutral-300 text-neutral-600 hover:text-neutral-900">
+            <Link href="/" className="py-4 border-b-2 border-transparent hover:border-neutral-600 text-neutral-300 hover:text-neutral-100">
               Dashboard
             </Link>
-            <Link href="/products" className="py-4 border-b-2 border-transparent hover:border-neutral-300 text-neutral-600 hover:text-neutral-900">
+            <Link href="/products" className="py-4 border-b-2 border-transparent hover:border-neutral-600 text-neutral-300 hover:text-neutral-100">
               Products
             </Link>
-            <Link href="/orders" className="py-4 border-b-2 border-transparent hover:border-neutral-300 text-neutral-600 hover:text-neutral-900">
+            <Link href="/orders" className="py-4 border-b-2 border-transparent hover:border-neutral-600 text-neutral-300 hover:text-neutral-100">
               Orders
             </Link>
             <Link href="/custom-orders" className="py-4 border-b-2 border-brand-dark-wood font-medium text-brand-dark-wood">
               Custom Orders
             </Link>
-            <Link href="/analytics" className="py-4 border-b-2 border-transparent hover:border-neutral-300 text-neutral-600 hover:text-neutral-900">
+            <Link href="/analytics" className="py-4 border-b-2 border-transparent hover:border-neutral-600 text-neutral-300 hover:text-neutral-100">
               Analytics
             </Link>
-            <Link href="/profile" className="py-4 border-b-2 border-transparent hover:border-neutral-300 text-neutral-600 hover:text-neutral-900">
+            <Link href="/profile" className="py-4 border-b-2 border-transparent hover:border-neutral-600 text-neutral-300 hover:text-neutral-100">
               Profile
             </Link>
           </div>
@@ -65,15 +65,15 @@ export default async function CustomOrdersPage() {
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="card">
-            <div className="text-sm text-neutral-600 mb-1">Pending Requests</div>
+            <div className="text-sm text-neutral-400 mb-1">Pending Requests</div>
             <div className="text-3xl font-bold text-orange-600">{pendingOrders.length}</div>
           </div>
           <div className="card">
-            <div className="text-sm text-neutral-600 mb-1">Active Projects</div>
+            <div className="text-sm text-neutral-400 mb-1">Active Projects</div>
             <div className="text-3xl font-bold text-blue-600">{activeOrders.length}</div>
           </div>
           <div className="card">
-            <div className="text-sm text-neutral-600 mb-1">Completed</div>
+            <div className="text-sm text-neutral-400 mb-1">Completed</div>
             <div className="text-3xl font-bold text-green-600">{completedOrders.length}</div>
           </div>
         </div>
@@ -92,11 +92,11 @@ export default async function CustomOrdersPage() {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-bold text-lg">{order.title}</h3>
+                        <div className="font-bold text-lg">{order.title}</div>
                         <span className="badge badge-warning">New Request</span>
                       </div>
-                      <p className="text-neutral-700 mb-3 line-clamp-2">{order.description}</p>
-                      <div className="flex items-center gap-4 text-sm text-neutral-600">
+                      <p className="text-neutral-400 mb-3 line-clamp-2">{order.description}</p>
+                      <div className="flex items-center gap-4 text-sm text-neutral-400">
                         <span>👤 {customer?.name || "Anonymous"}</span>
                         <span>💰 Budget: ${order.budgetMin} - ${order.budgetMax}</span>
                         <span>📅 {new Date(order.createdAt).toLocaleDateString()}</span>
@@ -124,7 +124,7 @@ export default async function CustomOrdersPage() {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-bold text-lg">{order.title}</h3>
+                        <div className="font-bold text-lg">{order.title}</div>
                         <span className={`badge ${
                           order.status === "in_production" ? "badge-info" :
                           order.status === "accepted" ? "badge-success" :
@@ -133,8 +133,8 @@ export default async function CustomOrdersPage() {
                           {order.status?.replace("_", " ")}
                         </span>
                       </div>
-                      <p className="text-neutral-700 mb-3 line-clamp-2">{order.description}</p>
-                      <div className="flex items-center gap-4 text-sm text-neutral-600">
+                      <p className="text-neutral-400 mb-3 line-clamp-2">{order.description}</p>
+                      <div className="flex items-center gap-4 text-sm text-neutral-400">
                         <span>👤 {customer?.name || "Anonymous"}</span>
                         {order.quotedPrice && <span>💰 ${order.quotedPrice}</span>}
                         {order.estimatedCompletionDate && (
@@ -164,13 +164,13 @@ export default async function CustomOrdersPage() {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-bold text-lg">{order.title}</h3>
+                        <div className="font-bold text-lg">{order.title}</div>
                         <span className="badge badge-success">
                           {order.status === "delivered" ? "Delivered" : "Completed"}
                         </span>
                       </div>
-                      <p className="text-neutral-700 mb-3 line-clamp-2">{order.description}</p>
-                      <div className="flex items-center gap-4 text-sm text-neutral-600">
+                      <p className="text-neutral-400 mb-3 line-clamp-2">{order.description}</p>
+                      <div className="flex items-center gap-4 text-sm text-neutral-400">
                         <span>👤 {customer?.name || "Anonymous"}</span>
                         {order.quotedPrice && <span>💰 ${order.quotedPrice}</span>}
                         <span>✓ {new Date(order.updatedAt).toLocaleDateString()}</span>
@@ -188,9 +188,7 @@ export default async function CustomOrdersPage() {
           <div className="card text-center py-12">
             <div className="text-6xl mb-4">📝</div>
             <h2 className="text-2xl font-serif font-bold mb-2">No Custom Orders Yet</h2>
-            <p className="text-neutral-600">
-              Custom order requests from customers will appear here
-            </p>
+            <p className="text-neutral-400">Custom order requests from customers will appear here</p>
           </div>
         )}
       </main>

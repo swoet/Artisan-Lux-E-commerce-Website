@@ -179,7 +179,7 @@ export default function CustomOrderActions({ order, artisanId }: CustomOrderActi
 
       {/* Quoted - Waiting for customer */}
       {order.status === "quoted" && (
-        <div className="text-sm text-neutral-600 p-4 bg-blue-50 rounded">
+        <div className="text-sm text-blue-300 p-4 bg-blue-900/30 border border-blue-700/50 rounded-lg">
           Waiting for customer to accept your quote
         </div>
       )}
@@ -280,7 +280,7 @@ export default function CustomOrderActions({ order, artisanId }: CustomOrderActi
 
       {/* Delivered - Done */}
       {order.status === "delivered" && (
-        <div className="text-sm text-green-700 p-4 bg-green-50 rounded">
+        <div className="text-sm text-green-300 p-4 bg-green-900/30 border border-green-700/50 rounded-lg">
           ✓ Order delivered successfully
         </div>
       )}

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireArtisanAuth } from "@/lib/auth";
 import { db } from "@/db";
-import { customOrders, customOrderMessages } from "@/db/schema";
+import { customOrders, customOrderMessages, customers } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { sendEmail } from "@/lib/email";
 
@@ -48,16 +48,27 @@ export async function POST(
 
     // Send email notification to customer
     try {
-      await sendEmail({
-        to: order.customerEmail || "",
-        subject: `New Message: ${order.title}`,
-        html: `
-          <h2>New Message from Your Artisan</h2>
-          <h3>${order.title}</h3>
-          <p>${message}</p>
-          <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/account/custom-orders/${order.id}">Reply to Message</a></p>
-        `,
-      });
+      let toEmail = order.customerEmail || "";
+      if (!toEmail && order.customerId) {
+        const [cust] = await db
+          .select({ email: customers.email })
+          .from(customers)
+          .where(eq(customers.id, order.customerId))
+          .limit(1);
+        toEmail = cust?.email || "";
+      }
+      if (toEmail) {
+        await sendEmail({
+          to: toEmail,
+          subject: `New Message: ${order.title}`,
+          html: `
+            <h2>New Message from Your Artisan</h2>
+            <h3>${order.title}</h3>
+            <p>${message}</p>
+            <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/account/custom-orders/${order.id}">Reply to Message</a></p>
+          `,
+        });
+      }
     } catch (emailError) {
       console.error("Failed to send email:", emailError);
     }
