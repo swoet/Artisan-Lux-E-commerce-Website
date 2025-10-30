@@ -22,6 +22,8 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    console.log(`Attempting to send email to: ${to}, subject: ${subject}`);
+    
     const { data, error } = await resend.emails.send({
       from: "Artisan Lux <no-reply@artisan-lux.com>",
       to: [to],
@@ -31,12 +33,15 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error("Resend error:", error);
+      console.error("Error details:", JSON.stringify(error, null, 2));
       return NextResponse.json(
-        { error: "Failed to send email" },
+        { error: "Failed to send email", details: error },
         { status: 500 }
       );
     }
 
+    console.log(`Email sent successfully! Message ID: ${data?.id}`);
+    
     return NextResponse.json({
       success: true,
       messageId: data?.id,
