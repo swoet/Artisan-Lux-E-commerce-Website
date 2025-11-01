@@ -4,6 +4,7 @@ import Testimonials from "@/components/site/Testimonials";
 import UserMenu from "@/components/site/UserMenu";
 import CartIcon from "@/components/site/CartIcon";
 import PendingOrdersIcon from "@/components/site/PendingOrdersIcon";
+import SearchGlobal from "@/components/site/SearchGlobal";
 
 // Disable static optimization
 export const revalidate = 0;
@@ -38,6 +39,12 @@ export default function Home() {
           <p className="text-xl text-neutral-300 max-w-2xl mx-auto leading-relaxed">
             Handcrafted pieces from independent artisans. Limited runs, authentic materials, delivered with care.
           </p>
+
+          {/* Global Search */}
+          <div className="pt-2">
+            <SearchGlobal />
+          </div>
+
           <div className="flex gap-4 justify-center pt-8">
             <Link
               href="/categories"

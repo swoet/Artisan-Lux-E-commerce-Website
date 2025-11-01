@@ -5,6 +5,7 @@ import { Picture } from "@/components/site/Picture";
 import { TAXONOMY_FALLBACK, type TaxonomyNode as TaxonomyNodeFallback } from "@/lib/taxonomy";
 import CartIcon from "@/components/site/CartIcon";
 import PendingOrdersIcon from "@/components/site/PendingOrdersIcon";
+import CategorySearch from "@/components/site/CategorySearch";
 
 export const revalidate = 300; // 5 minutes ISR, with on-demand revalidation from admin
 
@@ -102,12 +103,33 @@ export default async function CategoryPage(props: unknown) {
   const sub = (resolvedSearchParams?.sub as string | undefined) || undefined;
 
   // Subcategory nav (works for both DB-backed and fallback categories)
+  const MAX_VISIBLE = 10;
+  const selectedSlug = sub;
+  let visible = subcats.slice(0, MAX_VISIBLE);
+  let overflow = subcats.slice(MAX_VISIBLE);
+  if (selectedSlug) {
+    const idx = overflow.findIndex((s) => s.slug === selectedSlug);
+    if (idx !== -1) {
+      const [sel] = overflow.splice(idx, 1);
+      visible = [sel, ...visible.filter((s) => s.slug !== sel.slug)];
+    }
+  }
   const subNav = (
-    <div className="mt-4 flex flex-wrap gap-2">
+    <div className="mt-4 flex flex-wrap items-center gap-2">
       <Link href={`/category/${resolvedParams.slug}`} className={`px-3 py-1 rounded-full border ${!sub ? "border-[#cd7f32] text-[#cd7f32]" : "border-white/20 text-neutral-300"}`}>All</Link>
-      {subcats.map((s) => (
+      {visible.map((s) => (
         <Link key={s.slug} href={`/category/${resolvedParams.slug}?sub=${encodeURIComponent(s.slug)}`} className={`px-3 py-1 rounded-full border ${sub === s.slug ? "border-[#cd7f32] text-[#cd7f32]" : "border-white/20 text-neutral-300"}`}>{s.name}</Link>
       ))}
+      {overflow.length > 0 && (
+        <details className="relative">
+          <summary className="px-3 py-1 rounded-full border border-white/20 text-neutral-300 cursor-pointer select-none [&::-webkit-details-marker]:hidden">More</summary>
+          <div className="absolute z-20 mt-2 max-h-80 overflow-auto min-w-[14rem] rounded-md border border-white/10 bg-black/80 backdrop-blur p-2 shadow-lg">
+            {overflow.map((s) => (
+              <Link key={s.slug} href={`/category/${resolvedParams.slug}?sub=${encodeURIComponent(s.slug)}`} className={`block px-3 py-2 rounded hover:bg-white/10 ${sub === s.slug ? "text-[#cd7f32]" : "text-neutral-200"}`}>{s.name}</Link>
+            ))}
+          </div>
+        </details>
+      )}
     </div>
   );
 
@@ -157,6 +179,9 @@ export default async function CategoryPage(props: unknown) {
           <h1 className="text-5xl md:text-7xl font-serif mb-4">{cat.name}</h1>
           {cat.description && <p className="text-neutral-300 max-w-2xl">{cat.description}</p>}
           {subNav}
+          <div className="mt-4">
+            <CategorySearch categorySlug={resolvedParams.slug} subcats={subcats} items={items as any} />
+          </div>
         </header>
 
         <CategoryFilters initialMin={min} initialMax={max} initialSort={sort} />

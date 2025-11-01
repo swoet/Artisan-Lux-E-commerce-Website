@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { TAXONOMY_FALLBACK } from "@/lib/taxonomy";
 
 type CategoryCard = {
   name: string;
@@ -27,6 +28,32 @@ const LOCAL_CATEGORY_IMAGES: Record<string, string> = {
   "home-living": "/categories/home-living.jpg",
   "outdoor-garden": "/categories/outdoor-garden.jpg",
   "toys-games": "/categories/toys-games.jpg",
+  // Newly added categories
+  "aviation-aerospace": "/categories/aviation-aerospace.jpg",
+  "baby-kids": "/categories/baby-kids.jpg",
+  "books-media": "/categories/books-media.jpg",
+  "emergency-services": "/categories/emergency-services.jpeg",
+  "energy-utilities": "/categories/energy-utilities.jpg",
+  "farming-agriculture": "/categories/farming-agriculture.jpg",
+  "food-beverages": "/categories/food-beverages.jpg",
+  "groceries": "/categories/groceries.jpg",
+  "health-wellness": "/categories/health-wellness.jpg",
+  "industrial-scientific": "/categories/industrial-scientific.jpg",
+  "alcohol": "/categories/alcohol.png",
+  "marine-nautical": "/categories/marine-nautical.png",
+  "military-defense": "/categories/military-defense.jpg",
+  "mining-geology": "/categories/mining-geology.jpg",
+  "music-instruments": "/categories/music-instruments.jpg",
+  "office-school": "/categories/office-school.jpg",
+  "pets": "/categories/pets.jpg",
+  "security-surveillance": "/categories/security-surveillance.jpg",
+  "services": "/categories/services.jpg",
+  "sports-fitness": "/categories/sports-fitness.jpg",
+  "telecommunications": "/categories/telecommunications.jpg",
+  "textiles-clothing": "/categories/textiles-clothing.jpg",
+  "travel-luggage": "/categories/travel-luggage.jpg",
+  "vehicles-automotive": "/categories/vehicles-automotive.jpg",
+  "waste-recycling": "/categories/waste-recycling.jpg",
 };
 
 function localImageFor(slug: string): string | null {
@@ -87,16 +114,17 @@ function CategoryImage({ src, alt }: { src: string; alt: string }) {
 }
 
 export default async function CategoryGrid({ limit }: { limit?: number }) {
-  // Homepage categories are driven strictly by taxonomy roots, not DB rows.
+  // Try to load taxonomy from admin; if unavailable, fall back to local taxonomy list.
   const taxonomy = await fetchTaxonomy();
-  const roots = taxonomy.slice(0, limit ?? taxonomy.length).map((r) => ({
+  const source = taxonomy.length ? taxonomy : (TAXONOMY_FALLBACK as any);
+  const roots = source.slice(0, limit ?? source.length).map((r: any) => ({
     name: r.name,
     slug: slugFromKey(r.key),
     description: null,
     imageUrl: webImageFor(r.name, slugFromKey(r.key)),
   }));
 
-  const baseCards: CategoryCard[] = (roots.length ? roots : promoItems(limit ?? 24));
+  const baseCards: CategoryCard[] = roots;
   const cards = baseCards.map((c) => ({
     ...c,
     imageUrl: localImageFor(c.slug) || c.imageUrl,
