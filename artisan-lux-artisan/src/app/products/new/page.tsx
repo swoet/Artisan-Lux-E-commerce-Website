@@ -9,9 +9,9 @@ function slugFromKey(key: string) { return key.replace(/_/g, "-"); }
 
 async function ensureRootCategoriesFromAdmin() {
   // Discover the admin origin (same as storefront uses)
-  const adminOrigin = process.env.NEXT_PUBLIC_ADMIN_ORIGIN || process.env.ADMIN_BASE_URL || "https://artisan-lux-e-commerce-website.vercel.app";
+  const localOrigin = ""; // use local API route which proxies admin
   try {
-    const res = await fetch(`${adminOrigin}/api/catalog/taxonomy`, { cache: "no-store" });
+    const res = await fetch(`/api/catalog/taxonomy`, { cache: "no-store" });
     if (!res.ok) return;
     const data = await res.json();
     const taxonomy = (data?.taxonomy ?? []) as { key: string; name: string; children?: unknown[] }[];

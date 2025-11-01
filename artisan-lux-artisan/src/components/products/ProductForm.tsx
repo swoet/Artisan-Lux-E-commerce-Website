@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
@@ -22,11 +22,39 @@ interface ProductFormProps {
   product?: any;
 }
 
+type TaxNode = { key: string; name: string; children?: TaxNode[] };
+
+function slugFromKey(key: string) { return key.replace(/_/g, "-"); }
+
 export default function ProductForm({ artisan, categories, product }: ProductFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [uploadingImages, setUploadingImages] = useState(false);
+
+  // Taxonomy from admin (roots + children)
+  const [taxonomy, setTaxonomy] = useState<TaxNode[]>([]);
+  const [rootKey, setRootKey] = useState<string>("");
+  const [childKey, setChildKey] = useState<string>("");
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("/api/catalog/taxonomy", { cache: "no-store" });
+        const j = await res.json().catch(() => ({ taxonomy: [] }));
+        const tx = (j.taxonomy ?? []) as TaxNode[];
+        setTaxonomy(tx);
+        // Initialize root and categoryId
+        const rk = tx[0]?.key || "";
+        if (rk) {
+          setRootKey(rk);
+          const slug = slugFromKey(rk);
+          const match = categories.find((c) => c.slug === slug);
+          if (match) setCategoryId(String(match.id));
+        }
+      } catch {}
+    })();
+  }, [categories]);
 
   // Product fields
   const [title, setTitle] = useState(product?.title || "");
@@ -34,6 +62,14 @@ export default function ProductForm({ artisan, categories, product }: ProductFor
   const [price, setPrice] = useState(product?.price || "");
   const [categoryId, setCategoryId] = useState(product?.categoryId || "");
   const [stock, setStock] = useState(product?.stock || "");
+
+  // When rootKey changes, auto-select the mapped root category id
+  useEffect(() => {
+    if (!rootKey || !categories?.length) return;
+    const slug = slugFromKey(rootKey);
+    const match = categories.find((c) => c.slug === slug);
+    if (match) setCategoryId(String(match.id));
+  }, [rootKey, categories]);
   const [images, setImages] = useState<string[]>(product?.images || []);
   const [status, setStatus] = useState(product?.status || "draft");
 
@@ -195,21 +231,36 @@ export default function ProductForm({ artisan, categories, product }: ProductFor
 
             <div>
               <label className="block text-sm font-medium text-neutral-300 mb-2">
-                Category *
+                Category (Root) *
               </label>
               <select
-                value={categoryId}
-                onChange={(e) => setCategoryId(e.target.value)}
+                value={rootKey}
+                onChange={(e) => setRootKey(e.target.value)}
                 required
                 className="input"
               >
                 <option value="">Select category</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
+                {taxonomy.map((t) => (
+                  <option key={t.key} value={t.key}>{t.name}</option>
                 ))}
               </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-neutral-300 mb-2">
+                Subcategory (optional)
+              </label>
+              <select
+                value={childKey}
+                onChange={(e) => setChildKey(e.target.value)}
+                className="input"
+              >
+                <option value="">(none)</option>
+                {taxonomy.find((t) => t.key === rootKey)?.children?.map((c) => (
+                  <option key={c.key} value={c.key}>{c.name}</option>
+                ))}
+              </select>
+              {/* Note: subcategory is for organization; products are linked to the root category in this portal. */}
             </div>
 
             <div>
